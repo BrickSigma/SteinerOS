@@ -2,12 +2,19 @@
 This is a simple bootloader/OS project, with the goal of hopefully becoming a basic operating system.
 
 ## Contents
+- [Releases](#release-archives)
 - [Building and running](#building-and-running)
 - [Why do this?](#why-do-this)
 - [The current goal of this project](#the-current-goal-of-this-project)
 - [Resources and references](#resources-and-references)
 - [Next steps](#next-steps)
 - [Final words](#final-words)
+
+## Release archives
+Under the releases page for the repo you can find previous milestones reached in this project. These serve as an archive of my progress and to save any interesting programs I make which are later removed.  
+
+### Previous releases
+- [[v0.0.1] Pong bootloader](https://github.com/BrickSigma/SteinerOS/releases/tag/v0.0.1) - a simple remake of the classic game Pong that fits in the 512 bytes of the bootsector.
 
 ## Building and running
 This project is built using the GNU assembler and binutils system, therefore you should hopefully only need a copy of the default installation of the GNU C compiler and QEMU for emulating the project.
