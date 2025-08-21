@@ -1,33 +1,47 @@
-AS := as
-LD := ld
+TARGET := i686-elf
+AS := $(TARGET)-as
+LD := $(TARGET)-ld
 
 SRCDIR := src
 OBJDIR := objects
 
-SRCS =  $(SRCDIR)/boot.s #$(wildcard $(SRCDIR)/*.s)
-OBJS = $(patsubst $(SRCDIR)/%.s, $(OBJDIR)/%.o, $(SRCS))
+BOOT_SRCS = $(SRCDIR)/boot/boot.s
+BOOT_OBJS = $(OBJDIR)/boot/boot.o
+BOOT_BIN = $(OBJDIR)/boot.bin
 
-LDFLAGS := -T linker.ld
+SECOND_STAGE_SRC = $(SRCDIR)/boot/second_stage.s
+SECOND_STAGE_OBJS = $(OBJDIR)/boot/second_stage.o
+SECOND_STAGE_BIN = $(OBJDIR)/second_stage.bin
 
-ASFLAGS := -I$(SRCDIR)
+BOOT_LDFLAGS := -T $(SRCDIR)/boot_linker.ld
+SECOND_STAGE_LDFLAGS := -T $(SRCDIR)/second_stage_linker.ld
 
-BOOTBIN := steineros.bin
+ASFLAGS := -I$(SRCDIR) -I$(SRCDIR)/boot
+
+OS_BIN := steineros.bin
 
 .PHONY: all clean run
 
-all : $(BOOTBIN)
+all : $(OS_BIN)
 
-$(BOOTBIN) : $(OBJS)
-	$(LD) $(LDFLAGS) -o $@ $^
+$(OS_BIN) : $(BOOT_BIN) $(SECOND_STAGE_BIN)
+	dd if=$(BOOT_BIN) of=$(OS_BIN) bs=512 count=1 conv=notrunc
+	dd if=$(SECOND_STAGE_BIN) of=$(OS_BIN) bs=512 count=3 seek=1 conv=notrunc
 
-$(OBJDIR)/%.o : $(SRCDIR)/%.s | $(OBJDIR)
-	$(AS) $^ -o $@ $(ASFLAGS)
+$(BOOT_BIN) : $(BOOT_SRCS) | $(OBJDIR)
+	$(AS) $^ -o $(BOOT_OBJS) $(ASFLAGS)
+	$(LD) $(BOOT_LDFLAGS) -o $(BOOT_BIN) $(BOOT_OBJS)
+
+$(SECOND_STAGE_BIN) : $(SECOND_STAGE_SRC) | $(OBJDIR)
+	$(AS) $^ -o $(SECOND_STAGE_OBJS) $(ASFLAGS)
+	$(LD) $(SECOND_STAGE_LDFLAGS) -o $(SECOND_STAGE_BIN) $(SECOND_STAGE_OBJS)
 
 $(OBJDIR) :
 	mkdir -p $(OBJDIR)
+	mkdir -p $(OBJDIR)/boot
 
 clean:
-	rm -rf $(OBJS) *.bin
+	rm -rf $(BOOT_OBJS) $(SECOND_STAGE_OBJS) */*.bin *.bin
 
 run:
-	qemu-system-i386 -hda $(BOOTBIN)
+	qemu-system-i386 -hda $(OS_BIN)

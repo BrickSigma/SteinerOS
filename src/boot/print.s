@@ -1,8 +1,3 @@
-/*
-Marked as old for now.
-Will probably re-implement it in C once in protected mode.
-*/
-
 .code16
 .align 16
 
