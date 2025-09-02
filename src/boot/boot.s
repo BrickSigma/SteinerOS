@@ -55,6 +55,8 @@ _start:
     movw $jump_msg, %si
     call sprint
 
+    # Save the drive number to pass into the second stage bootloader
+    movb DRIVE_NUMBER, %dl
     jmp 0x7e00
 
 .load_error:

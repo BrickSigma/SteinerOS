@@ -141,6 +141,7 @@ print_char_at:
 
 # Internal data variables
 xpos: .byte 0
+.global ypos
 ypos: .byte 0
 
 hexstr: .ascii "0123456789ABCDEF"
