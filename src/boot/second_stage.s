@@ -66,6 +66,11 @@ _start:
     movw $a20_enabled_msg, %si
     call sprint
 
+    # Step 3: Setup the GDT and GDTR
+    call load_gdt
+    movw $gdt_loaded_msg, %si
+    call sprint
+
     # Still work in progress...
 
     # Step n: setup the video mode (320x200, 256 colors)
@@ -89,15 +94,17 @@ _start:
     jmp .hang
 
 .include "a20.s"
+.include "gdt.s"
 .include "print.s"
 .include "vga.s"
 
 DRIVE_NUMBER: .byte 0
 
 loaded_msg: .asciz "Second stage bootloader loaded! Checking A20 line..."
-a20_enabled_msg: .asciz "A20 line enabled!"
+a20_enabled_msg: .asciz "A20 line enabled"
 a20_disabled_msg: .asciz "A20 line disabled. Trying to enable A20 line..."
 a20_error_msg: .asciz "Could not enable A20 line"
+gdt_loaded_msg: .asciz "GDT loaded"
 
     # Padding the end of the bootloader
     .fill 1536 - (. - _start) 
