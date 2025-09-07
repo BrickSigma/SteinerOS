@@ -7,7 +7,6 @@ _start:
     # Restore the drive number
     mov %dl, DRIVE_NUMBER
 
-    movb $3, ypos
     movw $loaded_msg, %si
     call sprint
 
@@ -22,11 +21,7 @@ _start:
     - VGA video mode
     */
 
-
-    # Step 1: Disable interrupts and the NMI
-    cli
-
-    # Disable NMI
+    # Step 1: Disable NMI
     inb $0x70
     orb $0x80, %al
     outb $0x70
@@ -67,26 +62,45 @@ _start:
     call sprint
 
     # Step 3: Setup the GDT and GDTR
+    cli
     call load_gdt
     movw $gdt_loaded_msg, %si
     call sprint
 
-    # Still work in progress...
-
-    # Step n: setup the video mode (320x200, 256 colors)
+    # Step 4: setup the video mode (320x200, 256 colors)
     // movw $0x0013, %ax
     // int $0x10
 
-    // # Update the video buffer address from 0xB8000 to 0xA0000
+    # Update the video buffer address from 0xB8000 to 0xA0000
     // movw $0xa000, %ax
     // movw %ax, %es
 
     // call clear_screen
 
+    # We can now enter protected mode
+    mov %cr0, %eax
+    or $1, %al
+    mov %eax, %cr0
 
+    jmp .enter_kernel_main
+    nop
+    nop
+
+    # Prepare to enter the main kernel
+.enter_kernel_main:
+.code32
+    # setup the segment registers
+    movw $0x10, %ax
+    movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %fs
+    movw %ax, %gs
+    movw %ax, %ss
+    mov $0x30000, %esp
+
+.code16
 .hang:
     jmp .hang
-    hlt
 
 .a20_error:
     movw $a20_error_msg, %si
@@ -100,11 +114,12 @@ _start:
 
 DRIVE_NUMBER: .byte 0
 
-loaded_msg: .asciz "Second stage bootloader loaded! Checking A20 line..."
-a20_enabled_msg: .asciz "A20 line enabled"
-a20_disabled_msg: .asciz "A20 line disabled. Trying to enable A20 line..."
-a20_error_msg: .asciz "Could not enable A20 line"
-gdt_loaded_msg: .asciz "GDT loaded"
+loaded_msg: .asciz "Second stage bootloader loaded! Checking A20 line...\r\n"
+a20_enabled_msg: .asciz "A20 line enabled\r\n"
+a20_disabled_msg: .asciz "A20 line disabled. Trying to enable A20 line...\r\n"
+a20_error_msg: .asciz "Could not enable A20 line\r\n"
+gdt_loaded_msg: .asciz "GDT loaded\r\n"
+protected_mode_msg: .asciz "Protected mode enabled\r\n"
 
     # Padding the end of the bootloader
     .fill 1536 - (. - _start) 
