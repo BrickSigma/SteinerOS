@@ -25,18 +25,18 @@ OS_BIN := steineros.bin
 all : $(OS_BIN)
 
 $(OS_BIN) : $(BOOT_BIN) $(SECOND_STAGE_BIN)
-# 	dd if=/dev/zero of=$(OS_BIN) bs=512 count=32256
-# 	mformat -i $(OS_BIN) \
-# 	-h 16 -t 32 -s 63 -c 4 \
-# 	-B $(BOOT_BIN) \
-# 	-v "SteinerVOL" \
-# 	::
+	dd if=/dev/zero of=$(OS_BIN) bs=512 count=32256
+	mformat -i $(OS_BIN) \
+	-h 16 -t 32 -s 63 -c 4 \
+	-B $(BOOT_BIN) \
+	-v "SteinerVOL" \
+	::
 
-# 	mmd -i $(OS_BIN) ::/boot
-# 	mcopy -i $(OS_BIN) $(SECOND_STAGE_BIN) ::/boot/stage2.bin
+	mcopy -i $(OS_BIN) $(SECOND_STAGE_BIN) ::/stage2.bin
+	mattrib -i $(OS_BIN) -a +rhs ::/stage2.bin
 
-	dd if=$(BOOT_BIN) of=$(OS_BIN) bs=512 count=1 conv=notrunc
-	dd if=$(SECOND_STAGE_BIN) of=$(OS_BIN) bs=512 count=3 seek=1 conv=notrunc
+	#dd if=$(BOOT_BIN) of=$(OS_BIN) bs=512 count=1 conv=notrunc
+	#dd if=$(SECOND_STAGE_BIN) of=$(OS_BIN) bs=512 count=3 seek=1 conv=notrunc
 
 $(BOOT_BIN) : $(BOOT_SRCS) | $(OBJDIR)
 	$(AS) $^ -o $(BOOT_OBJS) $(ASFLAGS)
