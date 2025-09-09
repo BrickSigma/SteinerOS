@@ -34,7 +34,7 @@ $(OS_BIN) : bootloader second_stage
 
 # Second stage bootloader must be the first file copied into the file system in the root directory
 	mcopy -i $(OS_BIN) $(SECOND_STAGE_BIN) ::/stage2.bin
-	mattrib -i $(OS_BIN) -a +rhs ::/stage2.bin
+	#mattrib -i $(OS_BIN) -a +rhs ::/stage2.bin
 
 bootloader : $(BOOT_SRCS) | $(OBJDIR)
 	$(AS) $^ -o $(BOOT_OBJS) $(ASFLAGS)
