@@ -24,7 +24,7 @@ OS_BIN := steineros.bin
 
 all : $(OS_BIN)
 
-$(OS_BIN) : $(BOOT_BIN) $(SECOND_STAGE_BIN)
+$(OS_BIN) : bootloader second_stage
 	dd if=/dev/zero of=$(OS_BIN) bs=512 count=32256
 	mformat -i $(OS_BIN) \
 	-h 16 -t 32 -s 63 -c 4 \
@@ -32,17 +32,15 @@ $(OS_BIN) : $(BOOT_BIN) $(SECOND_STAGE_BIN)
 	-v "SteinerVOL" \
 	::
 
+# Second stage bootloader must be the first file copied into the file system in the root directory
 	mcopy -i $(OS_BIN) $(SECOND_STAGE_BIN) ::/stage2.bin
 	mattrib -i $(OS_BIN) -a +rhs ::/stage2.bin
 
-	#dd if=$(BOOT_BIN) of=$(OS_BIN) bs=512 count=1 conv=notrunc
-	#dd if=$(SECOND_STAGE_BIN) of=$(OS_BIN) bs=512 count=3 seek=1 conv=notrunc
-
-$(BOOT_BIN) : $(BOOT_SRCS) | $(OBJDIR)
+bootloader : $(BOOT_SRCS) | $(OBJDIR)
 	$(AS) $^ -o $(BOOT_OBJS) $(ASFLAGS)
 	$(LD) $(BOOT_LDFLAGS) -o $(BOOT_BIN) $(BOOT_OBJS)
 
-$(SECOND_STAGE_BIN) : $(SECOND_STAGE_SRC) | $(OBJDIR)
+second_stage : $(SECOND_STAGE_SRC) | $(OBJDIR)
 	$(AS) $^ -o $(SECOND_STAGE_OBJS) $(ASFLAGS)
 	$(LD) $(SECOND_STAGE_LDFLAGS) -o $(SECOND_STAGE_BIN) $(SECOND_STAGE_OBJS)
 

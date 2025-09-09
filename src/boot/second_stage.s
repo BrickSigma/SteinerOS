@@ -97,6 +97,7 @@ _start:
     movw %ax, %gs
     movw %ax, %ss
     mov $0x30000, %esp
+    jmp .hang
 
 .code16
 .hang:

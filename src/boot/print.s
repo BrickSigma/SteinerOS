@@ -11,7 +11,7 @@ sprint:
     or %al, %al
     jz .sprint_end
     mov $0x0e, %ah
-    mov $0, %bh
+    xorb %bh, %bh
     int $0x10
     jmp sprint
 .sprint_end:
