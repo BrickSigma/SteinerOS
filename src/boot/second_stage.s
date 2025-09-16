@@ -123,4 +123,4 @@ gdt_loaded_msg: .asciz "GDT loaded\r\n"
 protected_mode_msg: .asciz "Protected mode enabled\r\n"
 
     # Padding the end of the bootloader
-    .fill 1536 - (. - _start) 
+    .fill 3048 - (. - _start) 

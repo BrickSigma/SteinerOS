@@ -7,23 +7,28 @@ Print using BIOS function 0x10h
 */
 .global sprint
 sprint:
+    pusha
+.sprint_loop:
     lodsb
     or %al, %al
     jz .sprint_end
     mov $0x0e, %ah
     xorb %bh, %bh
     int $0x10
-    jmp sprint
+    jmp .sprint_loop
 .sprint_end:
+    popa
     ret
 
+/**
+Prints the 16-bit register value stores in AX
+*/
 .global printreg16
 printreg16:
     # Save register values
     pusha
 
     movw $outstr16, %di  # Load the pointer for the output string
-    movw reg16, %ax  # Copy the value of reg16 into AX
     movw $hexstr, %si  # Load the pointer of hexstr
     movw $4, %cx  # Used to loop over every hex character
 hexloop:
@@ -45,6 +50,3 @@ hexloop:
 
 hexstr: .ascii "0123456789ABCDEF"
 outstr16: .asciz "0000\r\n"  # Hold the string value of the register value
-
-.global reg16
-reg16: .word 0  # Used for passing values to printreg16

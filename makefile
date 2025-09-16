@@ -52,4 +52,4 @@ clean:
 	rm -rf $(BOOT_OBJS) $(SECOND_STAGE_OBJS) */*.bin *.bin
 
 run:
-	qemu-system-i386 -hda $(OS_BIN)
+	qemu-system-x86_64 -hda $(OS_BIN)
