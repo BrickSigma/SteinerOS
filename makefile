@@ -1,6 +1,7 @@
 TARGET := i686-elf
 AS := $(TARGET)-as
 LD := $(TARGET)-ld
+CC := $(TARGET)-gcc
 
 SRCDIR := src
 OBJDIR := objects
@@ -13,10 +14,15 @@ SECOND_STAGE_SRC = $(SRCDIR)/boot/second_stage.s
 SECOND_STAGE_OBJS = $(OBJDIR)/boot/second_stage.o
 SECOND_STAGE_BIN = $(OBJDIR)/second_stage.bin
 
+KERNEL_SRC = $(SRCDIR)/kernel/kernel.c
+KERNEL_OBJS = $(OBJDIR)/kernel/kernel.o
+
 BOOT_LDFLAGS := -T $(SRCDIR)/boot_linker.ld
 SECOND_STAGE_LDFLAGS := -T $(SRCDIR)/second_stage_linker.ld
 
 ASFLAGS := -I$(SRCDIR) -I$(SRCDIR)/boot
+
+CFLAGS := -c -std=gnu99 -ffreestanding -O0 -Wall -Wextra
 
 OS_BIN := steineros.bin
 
@@ -40,13 +46,15 @@ bootloader : $(BOOT_SRCS) | $(OBJDIR)
 	$(AS) $^ -o $(BOOT_OBJS) $(ASFLAGS)
 	$(LD) $(BOOT_LDFLAGS) -o $(BOOT_BIN) $(BOOT_OBJS)
 
-second_stage : $(SECOND_STAGE_SRC) | $(OBJDIR)
-	$(AS) $^ -o $(SECOND_STAGE_OBJS) $(ASFLAGS)
-	$(LD) $(SECOND_STAGE_LDFLAGS) -o $(SECOND_STAGE_BIN) $(SECOND_STAGE_OBJS)
+second_stage : $(SECOND_STAGE_SRC) $(KERNEL_SRC) | $(OBJDIR)
+	$(AS) $(SECOND_STAGE_SRC) -o $(SECOND_STAGE_OBJS) $(ASFLAGS)
+	$(CC) $(KERNEL_SRC) -o $(KERNEL_OBJS) $(CFLAGS)
+	$(LD) $(SECOND_STAGE_LDFLAGS) -o $(SECOND_STAGE_BIN) $(SECOND_STAGE_OBJS) $(KERNEL_OBJS)
 
 $(OBJDIR) :
 	mkdir -p $(OBJDIR)
 	mkdir -p $(OBJDIR)/boot
+	mkdir -p $(OBJDIR)/kernel
 
 clean:
 	rm -rf $(BOOT_OBJS) $(SECOND_STAGE_OBJS) */*.bin *.bin

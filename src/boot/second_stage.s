@@ -1,6 +1,8 @@
 .code16
 .align 16
 
+.extern kernel_main
+
 .section .text
 .global _start
 _start:
@@ -68,8 +70,8 @@ _start:
     call sprint
 
     # Step 4: setup the video mode (320x200, 256 colors)
-    // movw $0x0013, %ax
-    // int $0x10
+    //movw $0x0013, %ax
+    //int $0x10
 
     # Update the video buffer address from 0xB8000 to 0xA0000
     // movw $0xa000, %ax
@@ -82,13 +84,11 @@ _start:
     or $1, %al
     mov %eax, %cr0
 
-    jmp .enter_kernel_main
-    nop
-    nop
+    ljmp $0x08, $.enter_kernel_main
 
     # Prepare to enter the main kernel
-.enter_kernel_main:
 .code32
+.enter_kernel_main:
     # setup the segment registers
     movw $0x10, %ax
     movw %ax, %ds
@@ -97,6 +97,9 @@ _start:
     movw %ax, %gs
     movw %ax, %ss
     mov $0x30000, %esp
+
+    call kernel_main
+
     jmp .hang
 
 .code16
@@ -121,6 +124,8 @@ a20_disabled_msg: .asciz "A20 line disabled. Trying to enable A20 line...\r\n"
 a20_error_msg: .asciz "Could not enable A20 line\r\n"
 gdt_loaded_msg: .asciz "GDT loaded\r\n"
 protected_mode_msg: .asciz "Protected mode enabled\r\n"
+.ascii "Testing"
+.word 0xab00
 
     # Padding the end of the bootloader
     .fill 1536 - (. - _start) 
