@@ -1,10 +1,14 @@
 # SteinerOS
 This is a simple bootloader/OS project, with the goal of hopefully becoming a basic operating system.
 
+#### Note
+It's been roughly a year now since I last touched this project. Below are the contents of my original README, however I'm going to scrap a lot of the code I wrote previously and change a lot of how the project is structured (though it's not much as it's just a basic bootloader rather than an OS or even a kernel).
+
 ## Contents
 - [Releases](#release-archives)
 - [Building and running](#building-and-running)
 - [Why do this?](#why-do-this)
+- [Project roadmap](#project-roadmap)
 - [Resources and references](#resources-and-references)
 - [Final words](#final-words)
 
@@ -12,12 +16,12 @@ This is a simple bootloader/OS project, with the goal of hopefully becoming a ba
 Under the releases page for the repo you can find previous milestones reached in this project. These serve as an archive of my progress and to save any interesting programs I make which are later removed.  
 
 ### Previous releases
-- [[v0.0.1] Pong bootloader](https://github.com/BrickSigma/SteinerOS/releases/tag/v0.0.1) - a simple remake of the classic game Pong that fits in the 512 bytes of the bootsector.
+- [[v0.0.1] Pong bootloader](https://github.com/BrickSigma/SteinerOS/releases/tag/v0.0.1) - a simple remake of the classic game Pong that fits in the 512 bytes of the bootsector. This was done as an entry into the realm of 16-bit assembly programming and working with the BIOS, serving as an introduction to OSDev for myself.
 
 ## Building and running
-Before building, you'll need to download and setup your own cross compiler for the i686-elf architecture. You can find instructions on how to do this in the OSDev Wiki page ([GCC Cross-Compiler](https://wiki.osdev.org/GCC_Cross-Compiler)).
+Before building, you'll need to setup a cross-compiler to build the project. The project uses a **x86_64-elf** toolchain, and I have created a separate repository with a BASH script to build the toolchain automatically, which you can find [here](https://github.com/BrickSigma/SteinerOS-toolchain) and use it to setup the cross-compiler.
 
-Once you've setup the cross compiler, you can simply run `make` in the root of the project folder, and `make run` to start running it.
+Once you've setup the cross compiler and added the `opt/cross/bin` folder to your environment PATH, you can simply run `make` in the root of the project folder to build it, and `make run` to start run it in QEMU.
 
 ## Why do this?
 Good question! Well in short I have two reasons:
@@ -31,7 +35,7 @@ Below is a rough outline of the roadmap I'm following for now
 
 - [x] Setup a first and second stage bootloader,
 - [ ] Setup protected mode (GDT, IDT, A20 line, etc...),
-- [ ] Setup FAT 12 (or 16) file system
+- [ ] Choose a file system to use, either FAT32 or ExFAT,
 - [ ] Load C kernel from file system
 
 
