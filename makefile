@@ -1,7 +1,7 @@
-TARGET := i686-elf
-AS := $(TARGET)-as
+TARGET := x86_64-elf
+AS := $(TARGET)-as --32
 LD := $(TARGET)-ld
-CC := $(TARGET)-gcc
+CC := $(TARGET)-gcc -m32
 
 SRCDIR := src
 OBJDIR := objects
