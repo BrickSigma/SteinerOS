@@ -14,16 +14,19 @@ add_subdirectory(boot)
 
 # Copy the bootloader binary file
 add_custom_target(SteinerOS ALL
-    COMMAND cp ${CMAKE_BINARY_DIR}/boot/boot.bin ${CMAKE_BINARY_DIR}/SteinerOS.bin
+    COMMAND dd if=${CMAKE_BINARY_DIR}/boot/boot.bin bs=512 of=${CMAKE_BINARY_DIR}/SteinerOS.bin
+    COMMAND dd if=${CMAKE_BINARY_DIR}/boot/second_stage.bin bs=512 seek=1 conv=notrunc oflag=append of=${CMAKE_BINARY_DIR}/SteinerOS.bin
 )
-add_dependencies(SteinerOS Bootloader)
+add_dependencies(SteinerOS 
+    Bootloader 
+    SecondStageBootloader
+)
 
 set_target_properties(SteinerOS PROPERTIES
     ADDITIONAL_CLEAN_FILES ${CMAKE_BINARY_DIR}/SteinerOS.bin
 )
 
 # Additional run target to automatically run the OS
-
 find_program(QEMU_EXECUTABLE qemu-system-x86_64 REQUIRED)
 
 add_custom_target(run
