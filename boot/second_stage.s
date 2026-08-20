@@ -29,13 +29,14 @@ _start:
     movw $A20_ENABLED_MSG_LEN, %cx
     call print
 
-    // Enable the NMI again
-    call enable_NMI
+    // Load the GDT
+    lgdt (gdtr_descriptor)
+    mov %cr0, %eax
+    orb $1, %al     // Set PE bit in CR0
+    mov %eax, %cr0
 
-    movw $PM_ENABLED_MSG, %si
-    movw $PM_ENABLED_MSG_LEN, %cx
-    call print
-    jmp _hang
+    // Far jump to selector 0x08 to load CS with proper descriptor
+    ljmp $0x08, $protected_mode
 
 _a20_error:
     // Enable NMI again as it was still disabled
@@ -62,9 +63,6 @@ A20_ENABLED_MSG: .ascii "A20 line enabled!\r\n"
 
 A20_ERROR_MSG: .ascii "Could not enable the A20 line!\r\n"
 .equ A20_ERROR_MSG_LEN, . - A20_ERROR_MSG
-
-PM_ENABLED_MSG: .ascii "Protected mode enabled!\r\n"
-.equ PM_ENABLED_MSG_LEN, . - PM_ENABLED_MSG
 
 // Utility function definitions
 // ============================
@@ -110,8 +108,84 @@ disable_NMI:
     inb $0x71, %al
     ret
 
+
+// Global descriptor table related items
+// =====================================
+
+gdtr_descriptor:
+    gdt_size: .word gdt_end - gdt - 1
+    gdt_offset: .int gdt
+
+// The actual GDT entries structure
+gdt:
+    null_descriptor:
+        .quad 0
+    kernel_code_segment:
+        .word 0xffff        // Limit (bits 0-15)
+        .word 0x0           // Base (bits 0-15)
+        .byte 0x0           // Base (bits 16-23)
+        .byte 0x9a          // Access byte
+        .byte 0b11001111    // Flags (0xc) + Limit (0xf)
+        .byte 0x0           // Base (bits 24-31)
+    kernel_data_segment:
+        .word 0xffff        // Limit (bits 0-15)
+        .word 0x0           // Base (bits 0-15)
+        .byte 0x0           // Base (bits 16-23)
+        .byte 0x92          // Access byte
+        .byte 0b11001111    // Flags (0xc) + Limit (0xf)
+        .byte 0x0           // Base (bits 24-31)
+gdt_end:
+
 .include "a20.s"
 
+
+// Protected mode 32-bit code starts here
+// ======================================
+.code32
+protected_mode:
+    movw $0x10, %ax
+    movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %fs
+    movw %ax, %gs
+    movw %ax, %ss
+    mov $0x7c00, %esp   // Reset the stack pointer
+
+    // Enable the NMI again
+    call enable_NMI_32bit
+
+    // Print a message to the screen
+    mov $0, %ecx
+    mov $0x17, %al
+    mov $PM_ENABLED_MSG, %esi
+    mov $0xb8000, %edi
+_pm_print_loop:
+    movsb
+    movb %al, (%edi)
+    inc %edi
+
+    inc %ecx
+    cmp $PM_ENABLED_MSG_LEN, %ecx
+    jb _pm_print_loop 
+
+    cli
+_protected_mode_hang:
+    hlt
+    jmp _protected_mode_hang
+
+
+/**
+ * Enables the NMI in 32-bit mode
+ */
+enable_NMI_32bit:
+    inb $0x70, %al
+    andb $0x7f, %al
+    outb %al, $0x70
+    inb $0x71, %al
+    ret
+
+PM_ENABLED_MSG: .ascii "Protected mode enabled!"
+.equ PM_ENABLED_MSG_LEN, . - PM_ENABLED_MSG
 
 // Pad the assembly file to use exactly 1.5KB
     .fill 1536 - (. - _start)
