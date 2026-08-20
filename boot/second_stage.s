@@ -3,18 +3,115 @@
 .code16
 .global _start
 _start:
-    // Print a message
-    movw $MSG_LEN, %cx
-    movw $MSG, %si
+    // Save the drive number
+    movb %dl, DRIVE_NUMBER
+
+    /**
+    The code below enables protected mode using the following steps:
+     1. Disable interrupts and the NMI
+     2. Enable the A20 line
+     3. Load the GDTR
+    */
+    movw $ENABLING_PM_MSG, %si
+    movw $ENABLING_PM_MSG_LEN, %cx
     call print
+
+    // Disable interrupts and the NMI
+    cli
+    call disable_NMI
+
+    // Enable the A20 line
+    call enable_a20
+    cmp $1, %ax
+    jne _a20_error
+    
+    movw $A20_ENABLED_MSG, %si
+    movw $A20_ENABLED_MSG_LEN, %cx
+    call print
+
+    // Enable the NMI again
+    call enable_NMI
+
+    movw $PM_ENABLED_MSG, %si
+    movw $PM_ENABLED_MSG_LEN, %cx
+    call print
+    jmp _hang
+
+_a20_error:
+    // Enable NMI again as it was still disabled
+    call enable_NMI
+
+    movw $A20_ERROR_MSG, %si
+    movw $A20_ERROR_MSG_LEN, %cx
+    call print
+    jmp _hang
 
 _hang:
     cli
     hlt
+    jmp _hang
 
-MSG: .ascii "Hello from second stage bootloader!\r\nHanging..."
-.equ MSG_LEN, . - MSG
+DRIVE_NUMBER: .byte 0  // Drive number
 
-.include "utils.s"
+// Message strings
+ENABLING_PM_MSG: .ascii "Enabling protected mode...\r\n"
+.equ ENABLING_PM_MSG_LEN, . - ENABLING_PM_MSG
 
+A20_ENABLED_MSG: .ascii "A20 line enabled!\r\n"
+.equ A20_ENABLED_MSG_LEN, . - A20_ENABLED_MSG
+
+A20_ERROR_MSG: .ascii "Could not enable the A20 line!\r\n"
+.equ A20_ERROR_MSG_LEN, . - A20_ERROR_MSG
+
+PM_ENABLED_MSG: .ascii "Protected mode enabled!\r\n"
+.equ PM_ENABLED_MSG_LEN, . - PM_ENABLED_MSG
+
+// Utility function definitions
+// ============================
+
+/**
+ * Teletext print function
+ * 
+ * Arguments:
+ * SI - address to text to be printed
+ * CX - length of text to print
+ * 
+ * Note: Both CX and SI's values are destroyed by this function, as well as the flags register
+ */
+print:
+    pusha
+_print_loop:
+    movb $0x0e, %ah
+    movb (%si), %al
+    inc %si
+    int $0x10
+    loop _print_loop
+    popa
+    ret
+
+
+/**
+ * Enables the NMI
+ */
+enable_NMI:
+    inb $0x70, %al
+    andb $0x7f, %al
+    outb %al, $0x70
+    inb $0x71, %al
+    ret
+
+/**
+ * Disables the NMI
+ */
+disable_NMI:
+    inb $0x70, %al
+    orb $0x80, %al
+    outb %al, $0x70
+    inb $0x71, %al
+    ret
+
+.include "a20.s"
+
+
+// Pad the assembly file to use exactly 1.5KB
     .fill 1536 - (. - _start)

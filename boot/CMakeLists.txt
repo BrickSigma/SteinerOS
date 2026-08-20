@@ -22,7 +22,7 @@ set_target_properties(Bootloader PROPERTIES
 # Second stage bootloader target setup
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/second_stage.o
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/second_stage.s ${CMAKE_CURRENT_SOURCE_DIR}/utils.s
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/second_stage.s ${CMAKE_CURRENT_SOURCE_DIR}/a20.s
     COMMAND x86_64-elf-as --32 ${CMAKE_CURRENT_SOURCE_DIR}/second_stage.s -o ${CMAKE_CURRENT_BINARY_DIR}/second_stage.o ${INC_FLAGS}
 )
 

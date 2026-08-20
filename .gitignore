@@ -8,6 +8,9 @@
 # Ignore old code base folder
 old-code/
 
+# Workbench folder for personal testing and exploration
+workbench/
+
 # CMake ignored files
 CMakeLists.txt.user
 CMakeCache.txt
@@ -21,3 +24,4 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
+*/.cmake

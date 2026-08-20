@@ -8,10 +8,6 @@ _start:
     movw %ax, %ss
     movw $0x7c00, %sp   // Stack grows down from 0000:7c00
 
-    // Set the video memory address
-    movw $0xb800, %ax
-    movw %ax, %es
-
     movb %dl, DRIVE_NUMBER  // Save the disk drive number
 
     cld
@@ -44,6 +40,10 @@ int13_extensions_unsupported:
 
 int13_extensions_supported:
     // We can now load up the second stage bootloader using it's LBA address
+    movw $LOADING_MSG, %si
+    movw $LOADING_MSG_LEN, %cx
+    call print
+
     movb $0x42, %ah
     movb DRIVE_NUMBER, %dl
     movw $DISK_PACKET_ADDRESS, %si
@@ -51,6 +51,14 @@ int13_extensions_supported:
 
     jc disk_read_failed
 
+    // Set DL to equal the drive number
+    movb DRIVE_NUMBER, %dl
+
+    movw $JUMP_MSG, %si
+    movw $JUMP_MSG_LEN, %cx
+    call print
+
+    // Jump to the second stage bootloader
     ljmp $0x0000, $0x7e00
 
 disk_read_failed:
@@ -65,9 +73,10 @@ disk_read_failed:
     movw $3, %cx
     call print
 
-_hang:
     cli
+_hang:
     hlt
+    jmp _hang
 
 DRIVE_NUMBER: .byte 0  // Drive number
 
@@ -87,8 +96,14 @@ INT13_EXTENSIONS_UNSUPPORTED: .ascii "INT0x13H extended functions unsupported!\r
 DISK_READ_ERROR: .ascii "Could not load second stage boot loader: "
 .equ DISK_READ_ERROR_LEN, . - DISK_READ_ERROR
 
-ERROR_NO:   .byte 0  // Error number used for printing
+ERROR_NO:   .byte 0  // Error number used for printing disk errors
             .ascii "\r\n"
+
+LOADING_MSG: .ascii "Loading second stage bootloader...\r\n"
+.equ LOADING_MSG_LEN, . - LOADING_MSG
+
+JUMP_MSG: .ascii "Jumping to second stage bootloader...\r\n"
+.equ JUMP_MSG_LEN, . - JUMP_MSG
 
 // Print function
 print:
