@@ -156,19 +156,7 @@ protected_mode:
     // Enable the NMI again
     call enable_NMI_32bit
 
-    // Print a message to the screen
-    mov $0, %ecx
-    mov $0x17, %al
-    mov $PM_ENABLED_MSG, %esi
-    mov $0xb8000, %edi
-_pm_print_loop:
-    movsb
-    movb %al, (%edi)
-    inc %edi
-
-    inc %ecx
-    cmp $PM_ENABLED_MSG_LEN, %ecx
-    jb _pm_print_loop 
+    call bootloader_main
 
     cli
 _protected_mode_hang:
@@ -188,6 +176,3 @@ enable_NMI_32bit:
 
 PM_ENABLED_MSG: .ascii "Protected mode enabled!"
 .equ PM_ENABLED_MSG_LEN, . - PM_ENABLED_MSG
-
-// Pad the assembly file to use exactly 1.5KB
-    .fill 1536 - (. - _start)
