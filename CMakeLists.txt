@@ -10,13 +10,14 @@ project(SteinerOS
 enable_language(ASM)
 
 # Build the bootloader
-add_subdirectory(boot)
+add_subdirectory(bootloader)
 
 # Copy the bootloader binary file
 add_custom_target(SteinerOS ALL
-    COMMAND dd if=${CMAKE_BINARY_DIR}/boot/boot.bin bs=512 of=${CMAKE_BINARY_DIR}/SteinerOS.bin
-    COMMAND dd if=${CMAKE_BINARY_DIR}/boot/second_stage.bin bs=512 seek=1 conv=notrunc oflag=append of=${CMAKE_BINARY_DIR}/SteinerOS.bin
+    COMMAND dd if=${CMAKE_BINARY_DIR}/bootloader/boot.bin bs=512 of=${CMAKE_BINARY_DIR}/SteinerOS.bin
+    COMMAND dd if=${CMAKE_BINARY_DIR}/bootloader/second_stage.bin bs=512 seek=1 conv=notrunc oflag=append of=${CMAKE_BINARY_DIR}/SteinerOS.bin
 )
+
 add_dependencies(SteinerOS 
     Bootloader 
     SecondStageBootloader

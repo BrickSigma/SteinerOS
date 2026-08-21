@@ -138,10 +138,12 @@ gdt_end:
 
 .include "a20.s"
 
-
 // Protected mode 32-bit code starts here
 // ======================================
 .code32
+
+.extern bootloader_main
+
 protected_mode:
     movw $0x10, %ax
     movw %ax, %ds
