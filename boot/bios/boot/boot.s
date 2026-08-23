@@ -84,7 +84,7 @@ DRIVE_NUMBER: .byte 0  // Drive number
 DISK_PACKET_ADDRESS:
     packet_size:    .byte 0x10
     res:            .byte 0
-    read_sectors:   .word 3
+    read_sectors:   .word 6         // The second stage of the bootloader is 3KB (6 * 512 byte sectors)
     write_addr:     .word 0x7e00
                     .word 0x0000
     lba:            .quad 1

@@ -8,9 +8,8 @@
  */
 void bootloader_main(void)
 {
-    const char *PM_MSG = "Protected mode enabled and running in C!";
+    const char *PM_MSG = "Protected mode enabled and running in C!\n";
     VGA_ClearScreen();
-    VGA_SetColorAttributes(WHITE, BLUE);
     VGA_Print(PM_MSG);
 
     return;

@@ -28,11 +28,12 @@ SECTIONS
 	}
 
     /* 
-        The second stage bootloader will be limited to 1.5KB for now.
+        The second stage bootloader will be limited to 3KB for now.
         That should give it enough room to enable the A20 gate, setup the GDT, IDT, and prtected mode.
      */
-    ASSERT(. <= (0x7e00 + 1536), "Second stage does not fit in 1.5KB!")
-    . = 0x7e00 + 1534;
+	BOOTLOADER_SIZE = 6*512;
+    ASSERT(. <= (0x7e00 + BOOTLOADER_SIZE), "Second stage does not fit in 3KB!")
+    . = 0x7e00 + BOOTLOADER_SIZE - 2;
 
     .padding : {
         SHORT(0x55aa);
