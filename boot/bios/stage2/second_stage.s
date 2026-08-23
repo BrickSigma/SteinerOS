@@ -6,6 +6,17 @@ _start:
     // Save the drive number
     movb %dl, DRIVE_NUMBER
 
+    // Disable the blinking cursor as well in text mode
+    // First get it's current scan line
+    movb $0x03, %ah
+    movb $0, %bh
+    int $0x10
+
+    // CH should hold the start scan line, CL will hold the end scan line    
+    orb $0b00100000, %ch  // Disable the cursor
+    movb $0x01, %ah
+    int $0x10
+
     /**
     The code below enables protected mode using the following steps:
      1. Disable interrupts and the NMI
