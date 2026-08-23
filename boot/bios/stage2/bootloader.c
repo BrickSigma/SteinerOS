@@ -12,6 +12,9 @@ size_t strlen(const char *s)
     return len;
 }
 
+/**
+ * Entrypoint to the bootloader C code
+ */
 void bootloader_main(void)
 {
     volatile void * const VGA_MEMORY = (void *)0xb8000;
