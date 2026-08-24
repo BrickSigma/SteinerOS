@@ -1,0 +1,19 @@
+{
+    "version": 4,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23
+    },
+    "configurePresets": [
+        {
+            "name": "i686",
+            "description": "Build for i686 architecture",
+            "binaryDir": "${sourceDir}/build",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "toolchain.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ]
+}
