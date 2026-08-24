@@ -4,6 +4,7 @@
 *.a
 *.so
 *.dll
+*.elf
 
 *.py
 .vscode

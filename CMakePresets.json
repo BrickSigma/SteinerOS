@@ -11,7 +11,8 @@
             "binaryDir": "${sourceDir}/build",
             "generator": "Unix Makefiles",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "toolchain.cmake"
+                "CMAKE_TOOLCHAIN_FILE": "toolchain.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         }
     ]
