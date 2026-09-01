@@ -46,12 +46,15 @@ _start:
     orb $1, %al     // Set PE bit in CR0
     mov %eax, %cr0
 
+    sti // Enable interrupts again
+
     // Far jump to selector 0x08 to load CS with proper descriptor
     ljmp $0x08, $protected_mode
 
 _a20_error:
     // Enable NMI again as it was still disabled
     call enable_NMI
+    sti
 
     movw $A20_ERROR_MSG, %si
     movw $A20_ERROR_MSG_LEN, %cx
@@ -184,6 +187,3 @@ enable_NMI_32bit:
     outb %al, $0x70
     inb $0x71, %al
     ret
-
-PM_ENABLED_MSG: .ascii "Protected mode enabled!"
-.equ PM_ENABLED_MSG_LEN, . - PM_ENABLED_MSG

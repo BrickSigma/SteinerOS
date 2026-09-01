@@ -2,8 +2,8 @@
  * VGA driver header for BIOS text mode.
  */
 
-#ifndef VGA_H
-#define VGA_H
+#ifndef __VGA_H
+#define __VGA_H
 
 #include <stdint.h>
 
@@ -61,6 +61,15 @@ void VGA_ScrollScreen(void);
 void VGA_PutChar(const char c);
 
 // Print a string to the screen and advance the cursor
-void VGA_Print(const char *restrict s);
+void VGA_Print(const char * s);
 
-#endif // VGA_H
+// Print a 32-bit integer to the screen
+void VGA_PrintInt(int value);
+
+// Print a 32-bit pointer to the screen in hexadecimal notation
+void VGA_PrintPointer(void *ptr);
+
+// Printf implementation for VGA output
+void VGA_Printf(const char *restrict fmt, ...);
+
+#endif // __VGA_H

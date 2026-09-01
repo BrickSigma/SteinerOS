@@ -12,5 +12,7 @@ void bootloader_main(void)
     VGA_ClearScreen();
     VGA_Print(PM_MSG);
 
+    VGA_Printf("Int: %d\nChar: %c\nString: %s\nPointer: %p\n", 5, 'i', "Hello World!", (void *)0xb8000);
+
     return;
 }
