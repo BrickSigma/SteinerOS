@@ -22,10 +22,10 @@ pm_function_cb:
     // Enable protected mode first
 
     /**
-    The code below enables protected mode using the following steps:
-     1. Disable interrupts and the NMI
-     2. Enable the A20 line (already done previously)
-     3. Load the GDTR
+     * The code below enables protected mode using the following steps:
+     *  1. Disable interrupts and the NMI
+     *  2. Enable the A20 line (already done previously)
+     *  3. Load the GDTR
     */
 
     // Disable interrupts and the NMI
@@ -45,8 +45,6 @@ pm_function_cb:
     movl %eax, (%bx)    // Save the row
     movl %edx, 8(%bx)   // Save the column
 
-    // Load the GDT
-    lgdt (gdtr_descriptor)
     mov %cr0, %eax
     orb $1, %al     // Set PE bit in CR0
     mov %eax, %cr0
@@ -142,55 +140,6 @@ _pm_function_cb_real_mode:
     popal
     ret
 
-// Message strings
-ENABLING_PM_MSG: .ascii "Enabling protected mode...\r\n"
-.equ ENABLING_PM_MSG_LEN, . - ENABLING_PM_MSG
 
 // Previous SP location
 PREVIOUS_SP: .word 0
-
-/**
- * Enables the NMI in real mode
- */
-.code16
-enable_NMI:
-    inb $0x70, %al
-    andb $0x7f, %al
-    outb %al, $0x70
-    inb $0x71, %al
-    ret
-
-/**
- * Disables the NMI in real mode
- */
-disable_NMI:
-    inb $0x70, %al
-    orb $0x80, %al
-    outb %al, $0x70
-    inb $0x71, %al
-    ret
-
-/**
- * Enables the NMI in 32-bit mode
- */
-.code32
-enable_NMI_32bit:
-    pushl %eax
-    inb $0x70, %al
-    andb $0x7f, %al
-    outb %al, $0x70
-    inb $0x71, %al
-    popl %eax
-    ret
-
-/**
- * Disabled the NMI in protected mode
- */
-disabled_NMI_32bit:
-    pushl %eax
-    inb $0x70, %al
-    orb $0x80, %al
-    outb %al, $0x70
-    inb $0x71, %al
-    popl %eax
-    ret

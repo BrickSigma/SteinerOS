@@ -36,7 +36,10 @@ _a20_enabled:
     movw $A20_ENABLED_MSG_LEN, %cx
     call print
 
-    // Call the C function
+    // Load the GDT
+    lgdt (gdtr_descriptor)
+
+    // Call bootloader in C
     movl $bootloader_main, %eax         // Function address
     movl $BOOTLOADER_ARGS, %ebx         // Function argument
     movl $BOOTLOADER_RET_VALUE, %ecx    // Function return value
@@ -98,7 +101,7 @@ _print_loop:
 .include "gdt.s"
 .include "pm_function_caller.s"
 .include "a20.s"
-
+.include "nmi.s"
 
 .code32
 .extern bootloader_main
