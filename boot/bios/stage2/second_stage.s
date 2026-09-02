@@ -36,6 +36,17 @@ _a20_enabled:
     movw $A20_ENABLED_MSG_LEN, %cx
     call print
 
+    // Call the C function
+    movl $bootloader_main, %eax         // Function address
+    movl $BOOTLOADER_ARG, %ebx          // Function argument
+    movl $BOOTLOADER_RET_VALUE, %ecx    // Function return value
+    call pm_function_cb
+    jc _call_failed  // Carry flag set on error
+
+    // Call the C function
+    movl $bootloader_main, %eax         // Function address
+    movl $BOOTLOADER_RET_VALUE, %ebx          // Function argument
+    movl $BOOTLOADER_RET_VALUE, %ecx    // Function return value
     call pm_function_cb
     jc _call_failed  // Carry flag set on error
 
@@ -93,3 +104,6 @@ _print_loop:
 
 .code32
 .extern bootloader_main
+
+BOOTLOADER_ARG: .int 512
+BOOTLOADER_RET_VALUE: .int 0

@@ -1,12 +1,23 @@
 /**
  * The following file contains a simple function for calling a single 32-bit function
  * in 16-bit real mode.
+ *
+ * The address of the callback function should be passed in using EAX.
+ * Arguments are passed using a pointer to a struct in EBX.
+ *
+ * NOTE: While this function doesn't really follow the System V calling convention,
+ *       internally the C code called will. Make sure to setup the C function declaration as:
+ *
+ *          `void c_function(void *args_struct, void *out_struct);`
+ *
+ * To return a value, a pointer to a struct containing the return values is passed using ECX, and maps
+ * to `out_struct` in the function callback.
  */
 
 .section .text
 pm_function_cb:
     .code16
-    pusha
+    pushal  // Save the registers (32-bit registers, not 16-bit)
 
     // Enable protected mode first
 
@@ -33,17 +44,20 @@ pm_function_cb:
     orb $1, %al     // Set PE bit in CR0
     mov %eax, %cr0
 
+    popal  // Restore EAX, EBX, and ECX
+    pushal  // Save them once more
+
     // Far jump to selector 0x08 to load CS with proper descriptor
     ljmp $0x08, $pm_function_cb_protected_mode
 
     .code32
 pm_function_cb_protected_mode:
-    movw $0x10, %ax
-    movw %ax, %ds
-    movw %ax, %es
-    movw %ax, %fs
-    movw %ax, %gs
-    movw %ax, %ss
+    movw $0x10, %dx
+    movw %dx, %ds
+    movw %dx, %es
+    movw %dx, %fs
+    movw %dx, %gs
+    movw %dx, %ss
     mov $0x7d000, %esp   // Set the stack pointer to a much higher memory location
 
     // Enable the NMI again
@@ -51,7 +65,11 @@ pm_function_cb_protected_mode:
     sti // Enable interrupts again
 
     // Call the C function in protected mode
+    subl $8, %esp
+    pushl %ecx
+    pushl %ebx
     call bootloader_main
+    addl $16, %esp
 
     /**
      * Now we need to get back into real mode again, following these steps:
@@ -104,7 +122,8 @@ _pm_function_cb_real_mode:
 
     clc  // Clear carry to indicate success
 
-    popa
+    // Restore the registers
+    popal
     ret
 
 // Message strings
@@ -146,18 +165,22 @@ disable_NMI:
  */
 .code32
 enable_NMI_32bit:
+    pushl %eax
     inb $0x70, %al
     andb $0x7f, %al
     outb %al, $0x70
     inb $0x71, %al
+    popl %eax
     ret
 
 /**
  * Disabled the NMI in protected mode
  */
 disabled_NMI_32bit:
+    pushl %eax
     inb $0x70, %al
     orb $0x80, %al
     outb %al, $0x70
     inb $0x71, %al
+    popl %eax
     ret
