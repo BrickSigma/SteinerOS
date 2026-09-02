@@ -27,7 +27,12 @@ target_include_directories(SecondStageBootloader
 )
 
 # Linker options
-target_link_libraries(SecondStageBootloader PRIVATE bios_vga)
+target_link_libraries(SecondStageBootloader 
+    PRIVATE 
+        bios_vga
+        bios_disk
+)
+
 target_link_options(SecondStageBootloader PRIVATE 
     -nostdlib 
     "-T${CMAKE_CURRENT_SOURCE_DIR}/second_stage.ld"

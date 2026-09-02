@@ -41,19 +41,12 @@ _a20_enabled:
 
     // Call bootloader in C
     movl $bootloader_main, %eax         // Function address
-    movl $BOOTLOADER_ARGS, %ebx         // Function argument
+    movl $DRIVE_NUMBER, %ebx         // Function argument
     movl $BOOTLOADER_RET_VALUE, %ecx    // Function return value
     call pm_function_cb
-    jc _call_failed  // Carry flag set on error
 
     movw $PM_SUCCESS, %si
     movw $PM_SUCCESS_MSG_LEN, %cx
-    call print
-    jmp _hang
-
-_call_failed:
-    movw $PM_CB_FAILED, %si
-    movw $PM_CB_FAILED_MSG_LEN, %cx
     call print
 
 _hang:
@@ -61,6 +54,7 @@ _hang:
     hlt
     jmp _hang
 
+.global DRIVE_NUMBER
 DRIVE_NUMBER: .byte 0  // Drive number
 
 .global VGA_CURSOR_PTR
@@ -72,9 +66,6 @@ VGA_CURSOR_PTR:
 VGA_CURSOR_STRUCT:
     vga_row: .int 0
     vga_col: .int 0
-
-PM_CB_FAILED: .ascii "Could not call protected mode function!\r\n"
-.equ PM_CB_FAILED_MSG_LEN, . - PM_CB_FAILED
 
 PM_SUCCESS: .ascii "C function call worked! Back in 16-bit real mode!\r\n"
 .equ PM_SUCCESS_MSG_LEN, . - PM_SUCCESS
@@ -115,12 +106,6 @@ _print_loop:
 
 .code32
 .extern bootloader_main
-
-BOOTLOADER_ARGS: 
-    .int 512
-    .byte 's'
-    .int HELLO_STR
-    .int 0xb8000
 
 HELLO_STR: .asciz "Hello World!"
 

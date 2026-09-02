@@ -39,6 +39,7 @@ gdt:
 gdt_end:
 
 // Interrupt descriptor table for real mode is also saved here
+.global idt_real
 idt_real:
     idt_real_size: .word 0x3ff
     idt_real_offset: .int 0

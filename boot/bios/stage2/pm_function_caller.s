@@ -52,10 +52,10 @@ pm_function_cb:
     pushal  // Save them once more
 
     // Far jump to selector 0x08 to load CS with proper descriptor
-    ljmp $0x08, $pm_function_cb_protected_mode
+    ljmp $0x08, $_pm_function_cb_protected_mode
 
     .code32
-pm_function_cb_protected_mode:
+_pm_function_cb_protected_mode:
     movw $0x10, %dx
     movw %dx, %ds
     movw %dx, %es
@@ -118,8 +118,8 @@ _pm_function_cb_real_mode:
     lidt (idt_real)
 
     // Restore the cursor's position
-    movl vga_row, %eax    // Save the row
-    movl vga_col, %edx   // Save the column
+    movl vga_row, %eax      // Save the row
+    movl vga_col, %edx      // Save the column
     movb %al, %dh
     xorb %bh, %bh
     movb $0x02, %ah
@@ -132,12 +132,11 @@ _pm_function_cb_real_mode:
     call enable_NMI
     sti
 
-    clc  // Clear carry to indicate success
-
     // Restore the registers
     popal
     ret
 
 
 // Previous SP location
+.global PREVIOUS_SP
 PREVIOUS_SP: .word 0

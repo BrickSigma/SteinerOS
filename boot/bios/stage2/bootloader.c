@@ -2,13 +2,11 @@
 #include <stdint.h>
 
 #include "vga.h"
+#include "disk.h"
 
 typedef struct __attribute__((packed)) BootloaderArgs
 {
-    int num;
-    char c;
-    char *str;
-    void *ptr;
+    uint8_t boot_drive;
 } BootloaderArgs;
 
 /**
@@ -17,18 +15,17 @@ typedef struct __attribute__((packed)) BootloaderArgs
 void bootloader_main(BootloaderArgs *args, void *ret)
 {
     VGA_Init();
-    int *output = (int *)ret;
 
     const char *PM_MSG = "Protected mode enabled and running in C!\n";
     VGA_Print(PM_MSG);
+    VGA_Printf("Boot drive number: %p\n", (int)args->boot_drive);
 
-    VGA_Printf("Int: %d\nChar: %c\nString: %s\nPointer: %p\n",
-               args->num,
-               args->c,
-               args->str,
-               args->ptr);
+    VGA_Print("Loading LBA 0 and checking if it works...\n");
 
-    *output = 37;
+    int status = load_lba_sector(1, 0x7d00, 0, 0, 0);
+
+    int value = *(int *)(0x7d000 + 508);
+    VGA_Printf("%p\nStatus: %d\n", value, status);
 
     return;
 }

@@ -118,5 +118,6 @@ _print_loop:
     ret
 
     // Padd the end of the bootloader and add the MBR signature
-    .fill 510 - (. - _start)
+    .fill 508 - (. - _start)
+    .word 0x1234
     .word 0xaa55
