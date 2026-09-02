@@ -10,7 +10,7 @@
 /**
  * Struct representing the VGA cursor's position
  */
-typedef struct VGA_Cursor
+typedef struct __attribute__((packed)) VGA_Cursor
 {
     int row;
     int col;
@@ -38,6 +38,9 @@ typedef enum VGA_Attribute
     YELLOW,
     BRIGHT_WHITE,
 } VGA_Attribute;
+
+// Initializes the VGA cursor pointer
+void VGA_Init(void);
 
 // Set the cursor position
 void VGA_SetCursor(VGA_Cursor cursor);

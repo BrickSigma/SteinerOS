@@ -14,36 +14,39 @@ static const int SCREEN_HEIGHT = 25;
 // This is specific to VGA text mode 02h.
 static void *const VGA_FRAMEBUFFER = (void *)0xb8000;
 
+// Pointer to VGA cursor struct in assembly
+extern void *VGA_CURSOR_PTR;
+
 // Pointer to BIOS cursor's position
-static VGA_Cursor *_cursor = (void *)0x500;
+static VGA_Cursor *_cursor = NULL;
 
 // Current text mode color attribute used when printing to the screen
 static uint8_t VGA_COLOR_ATTRIBUTE = 0x07;
 
+void VGA_Init(void)
+{
+    _cursor = (VGA_Cursor *)VGA_CURSOR_PTR;
+}
 
 void VGA_SetCursor(VGA_Cursor cursor)
 {
     *_cursor = cursor;
 }
 
-
 VGA_Cursor VGA_GetCursor(void)
 {
     return *_cursor;
 }
-
 
 void VGA_SetColorAttributes(VGA_Attribute fg, VGA_Attribute bg)
 {
     VGA_COLOR_ATTRIBUTE = (((uint8_t)bg) << 4) | (uint8_t)fg;
 }
 
-
 uint8_t VGA_GetColorAttributes(void)
 {
     return VGA_COLOR_ATTRIBUTE;
 }
-
 
 void VGA_ClearScreen(void)
 {
@@ -57,7 +60,6 @@ void VGA_ClearScreen(void)
 
     *_cursor = (VGA_Cursor){0, 0};
 }
-
 
 void VGA_ScrollScreen(void)
 {
@@ -77,7 +79,6 @@ void VGA_ScrollScreen(void)
         _cursor->col = 0;
     }
 }
-
 
 void VGA_PutChar(const char c)
 {
@@ -109,8 +110,7 @@ void VGA_PutChar(const char c)
     }
 }
 
-
-void VGA_Print(const char * s)
+void VGA_Print(const char *s)
 {
     size_t i = 0;
     while (s[i])
@@ -119,7 +119,6 @@ void VGA_Print(const char * s)
         i++;
     }
 }
-
 
 void VGA_PrintInt(int value)
 {
@@ -155,8 +154,7 @@ void VGA_PrintInt(int value)
 }
 
 static const char HEX_CHARS[] = {
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-};
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 void VGA_PrintPointer(void *ptr)
 {
@@ -164,7 +162,7 @@ void VGA_PrintPointer(void *ptr)
     for (int8_t i = 7; i >= 0; i--)
     {
         uint32_t value = (uint32_t)ptr;
-        value >>= i*4;
+        value >>= i * 4;
         value &= 0xf;
         VGA_PutChar(HEX_CHARS[value]);
     }
@@ -180,32 +178,32 @@ void VGA_Printf(const char *restrict fmt, ...)
     {
         switch (fmt[i])
         {
-            case '%':
-                i++;
-                switch (fmt[i])
-                {
-                    case 'c':
-                        char char_arg = (char)va_arg(ap, int);
-                        VGA_PutChar(char_arg);
-                        break;
-                    case 'd':
-                        int int_arg = va_arg(ap, int);
-                        VGA_PrintInt(int_arg);
-                        break;
-                    case 'p':
-                        void *ptr_arg = va_arg(ap, void *);
-                        VGA_PrintPointer(ptr_arg);
-                        break;
-                    case 's':
-                        char *string_arg = va_arg(ap, char *);
-                        VGA_Print(string_arg);
-                        break;
-                }
+        case '%':
+            i++;
+            switch (fmt[i])
+            {
+            case 'c':
+                char char_arg = (char)va_arg(ap, int);
+                VGA_PutChar(char_arg);
                 break;
+            case 'd':
+                int int_arg = va_arg(ap, int);
+                VGA_PrintInt(int_arg);
+                break;
+            case 'p':
+                void *ptr_arg = va_arg(ap, void *);
+                VGA_PrintPointer(ptr_arg);
+                break;
+            case 's':
+                char *string_arg = va_arg(ap, char *);
+                VGA_Print(string_arg);
+                break;
+            }
+            break;
 
-            default:
-                VGA_PutChar(fmt[i]);
-                break;
+        default:
+            VGA_PutChar(fmt[i]);
+            break;
         }
         i++;
     }

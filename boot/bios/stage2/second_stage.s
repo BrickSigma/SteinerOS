@@ -63,6 +63,16 @@ _hang:
 
 DRIVE_NUMBER: .byte 0  // Drive number
 
+.global VGA_CURSOR_PTR
+// VGA cursor pointer
+VGA_CURSOR_PTR:
+    .int VGA_CURSOR_STRUCT
+
+// VGA cursor struct
+VGA_CURSOR_STRUCT:
+    vga_row: .int 0
+    vga_col: .int 0
+
 PM_CB_FAILED: .ascii "Could not call protected mode function!\r\n"
 .equ PM_CB_FAILED_MSG_LEN, . - PM_CB_FAILED
 

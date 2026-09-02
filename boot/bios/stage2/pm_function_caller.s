@@ -39,11 +39,10 @@ pm_function_cb:
     movb $0x03, %ah
     xorb %bh, %bh
     int $0x10
-    movw $0x500, %bx
     movzx %dh, %eax     // Cursor row
     movzx %dl, %edx     // Cursor column
-    movl %eax, (%bx)    // Save the row
-    movl %edx, 8(%bx)   // Save the column
+    movl %eax, vga_row  // Save the row
+    movl %edx, vga_col  // Save the column
 
     mov %cr0, %eax
     orb $1, %al     // Set PE bit in CR0
@@ -119,9 +118,8 @@ _pm_function_cb_real_mode:
     lidt (idt_real)
 
     // Restore the cursor's position
-    movw $0x500, %bx
-    movl (%bx), %eax    // Save the row
-    movl 8(%bx), %edx   // Save the column
+    movl vga_row, %eax    // Save the row
+    movl vga_col, %edx   // Save the column
     movb %al, %dh
     xorb %bh, %bh
     movb $0x02, %ah
