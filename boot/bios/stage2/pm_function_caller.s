@@ -27,9 +27,6 @@ pm_function_cb:
      2. Enable the A20 line (already done previously)
      3. Load the GDTR
     */
-    movw $ENABLING_PM_MSG, %si
-    movw $ENABLING_PM_MSG_LEN, %cx
-    call print
 
     // Disable interrupts and the NMI
     cli
@@ -37,6 +34,16 @@ pm_function_cb:
 
     // Save the current SP value
     movw %sp, PREVIOUS_SP
+
+    // Also save the cursor's position
+    movb $0x03, %ah
+    xorb %bh, %bh
+    int $0x10
+    movw $0x500, %bx
+    movzx %dh, %eax     // Cursor row
+    movzx %dl, %edx     // Cursor column
+    movl %eax, (%bx)    // Save the row
+    movl %edx, 8(%bx)   // Save the column
 
     // Load the GDT
     lgdt (gdtr_descriptor)
@@ -68,7 +75,7 @@ pm_function_cb_protected_mode:
     subl $8, %esp
     pushl %ecx
     pushl %ebx
-    call bootloader_main
+    call *%eax
     addl $16, %esp
 
     /**
@@ -113,6 +120,15 @@ _pm_function_cb_real_mode:
     // Load the IDT
     lidt (idt_real)
 
+    // Restore the cursor's position
+    movw $0x500, %bx
+    movl (%bx), %eax    // Save the row
+    movl 8(%bx), %edx   // Save the column
+    movb %al, %dh
+    xorb %bh, %bh
+    movb $0x02, %ah
+    int $0x10
+
     // Restore the stack pointer again
     movw PREVIOUS_SP, %sp
 
@@ -129,12 +145,6 @@ _pm_function_cb_real_mode:
 // Message strings
 ENABLING_PM_MSG: .ascii "Enabling protected mode...\r\n"
 .equ ENABLING_PM_MSG_LEN, . - ENABLING_PM_MSG
-
-A20_ENABLED_MSG: .ascii "A20 line enabled!\r\n"
-.equ A20_ENABLED_MSG_LEN, . - A20_ENABLED_MSG
-
-A20_ERROR_MSG: .ascii "Could not enable the A20 line!\r\n"
-.equ A20_ERROR_MSG_LEN, . - A20_ERROR_MSG
 
 // Previous SP location
 PREVIOUS_SP: .word 0

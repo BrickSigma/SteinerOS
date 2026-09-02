@@ -38,14 +38,7 @@ _a20_enabled:
 
     // Call the C function
     movl $bootloader_main, %eax         // Function address
-    movl $BOOTLOADER_ARG, %ebx          // Function argument
-    movl $BOOTLOADER_RET_VALUE, %ecx    // Function return value
-    call pm_function_cb
-    jc _call_failed  // Carry flag set on error
-
-    // Call the C function
-    movl $bootloader_main, %eax         // Function address
-    movl $BOOTLOADER_RET_VALUE, %ebx          // Function argument
+    movl $BOOTLOADER_ARGS, %ebx         // Function argument
     movl $BOOTLOADER_RET_VALUE, %ecx    // Function return value
     call pm_function_cb
     jc _call_failed  // Carry flag set on error
@@ -70,8 +63,14 @@ DRIVE_NUMBER: .byte 0  // Drive number
 PM_CB_FAILED: .ascii "Could not call protected mode function!\r\n"
 .equ PM_CB_FAILED_MSG_LEN, . - PM_CB_FAILED
 
-PM_SUCCESS: .ascii "\r\n\nC function call worked! Back in 16-bit real mode!\r\n"
+PM_SUCCESS: .ascii "C function call worked! Back in 16-bit real mode!\r\n"
 .equ PM_SUCCESS_MSG_LEN, . - PM_SUCCESS
+
+A20_ENABLED_MSG: .ascii "A20 line enabled!\r\n"
+.equ A20_ENABLED_MSG_LEN, . - A20_ENABLED_MSG
+
+A20_ERROR_MSG: .ascii "Could not enable the A20 line!\r\n"
+.equ A20_ERROR_MSG_LEN, . - A20_ERROR_MSG
 
 // Utility function definitions
 // ============================
@@ -96,7 +95,6 @@ _print_loop:
     popa
     ret
 
-
 .include "gdt.s"
 .include "pm_function_caller.s"
 .include "a20.s"
@@ -105,5 +103,12 @@ _print_loop:
 .code32
 .extern bootloader_main
 
-BOOTLOADER_ARG: .int 512
+BOOTLOADER_ARGS: 
+    .int 512
+    .byte 's'
+    .int HELLO_STR
+    .int 0xb8000
+
+HELLO_STR: .asciz "Hello World!"
+
 BOOTLOADER_RET_VALUE: .int 0
