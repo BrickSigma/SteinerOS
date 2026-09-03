@@ -134,6 +134,11 @@ _load_lba_sector_protected_mode:
     sti // Enable interrupts again
 
     popal
+
+    // Return the disk status
+    movb DISK_STATUS, %al
+    andl $0xff, %eax
+
     movl %ebp, %esp
     popl %ebp
     ret
