@@ -7,6 +7,7 @@
 typedef struct __attribute__((packed)) BootloaderArgs
 {
     uint8_t boot_drive;
+    uint16_t bytes_per_sector;
 } BootloaderArgs;
 
 /**
@@ -18,7 +19,7 @@ void bootloader_main(BootloaderArgs *args, void *ret)
 
     const char *PM_MSG = "Protected mode enabled and running in C!\n";
     VGA_Print(PM_MSG);
-    VGA_Printf("Boot drive number: %p\n", (int)args->boot_drive);
+    VGA_Printf("Boot drive number: %p\nBytes per sector: %d\n", (int)args->boot_drive, (int)args->bytes_per_sector);
 
     VGA_Print("Loading LBA 0 and checking if it works...\n");
 

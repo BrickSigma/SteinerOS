@@ -5,6 +5,10 @@
 _start:
     // Save the drive number
     movb %dl, DRIVE_NUMBER
+    movb %dl, boot_drive_number  // Used to pass to C bootloader
+
+    // CX holds the bytes per sector information from the first stage
+    movw %cx, boot_bytes_per_sector
 
     // Disable the blinking cursor as well in text mode
     // First get it's current scan line
@@ -41,7 +45,7 @@ _a20_enabled:
 
     // Call bootloader in C
     movl $bootloader_main, %eax         // Function address
-    movl $DRIVE_NUMBER, %ebx         // Function argument
+    movl $BOOTLOADER_ARGS, %ebx         // Function argument
     movl $BOOTLOADER_RET_VALUE, %ecx    // Function return value
     call pm_function_cb
 
@@ -107,6 +111,9 @@ _print_loop:
 .code32
 .extern bootloader_main
 
-HELLO_STR: .asciz "Hello World!"
+// Arguments struct passed to C bootloader function
+BOOTLOADER_ARGS:
+    boot_drive_number:      .byte 0
+    boot_bytes_per_sector:  .word 0
 
 BOOTLOADER_RET_VALUE: .int 0

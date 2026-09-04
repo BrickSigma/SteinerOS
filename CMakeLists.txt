@@ -12,10 +12,11 @@ enable_language(ASM)
 # Build the bootloader
 add_subdirectory(boot)
 
+set(OUTPUT_IMG "${CMAKE_BINARY_DIR}/SteinerOS.iso")
+
 # Copy the bootloader binary file
 add_custom_target(SteinerOS ALL
-    COMMAND dd if=${CMAKE_BINARY_DIR}/boot/bios/boot/boot.bin bs=512 of=${CMAKE_BINARY_DIR}/SteinerOS.bin
-    COMMAND dd if=${CMAKE_BINARY_DIR}/boot/bios/stage2/second_stage.bin bs=512 seek=1 conv=notrunc oflag=append of=${CMAKE_BINARY_DIR}/SteinerOS.bin
+    COMMAND sh ${CMAKE_SOURCE_DIR}/cdrom.sh ${CMAKE_BINARY_DIR} SteinerOS.img
 )
 
 add_dependencies(SteinerOS 
@@ -24,13 +25,19 @@ add_dependencies(SteinerOS
 )
 
 set_target_properties(SteinerOS PROPERTIES
-    ADDITIONAL_CLEAN_FILES ${CMAKE_BINARY_DIR}/SteinerOS.bin
+    ADDITIONAL_CLEAN_FILES ${OUTPUT_IMG}
 )
 
 # Additional run target to automatically run the OS
 find_program(QEMU_EXECUTABLE qemu-system-x86_64 REQUIRED)
 
 add_custom_target(run
-    COMMAND ${QEMU_EXECUTABLE} -drive format=raw,file=${CMAKE_BINARY_DIR}/SteinerOS.bin
-    DEPENDS ${CMAKE_BINARY_DIR}/SteinerOS.bin
+    COMMAND ${QEMU_EXECUTABLE} -cdrom ${OUTPUT_IMG}
+    DEPENDS ${OUTPUT_IMG}
+)
+
+# Separate run target for running the `.img` file instead of CDROM
+add_custom_target(run_disk
+    COMMAND ${QEMU_EXECUTABLE} -drive format=raw,file=${CMAKE_BINARY_DIR}/SteinerOS.img
+    DEPENDS ${OUTPUT_IMG}
 )
