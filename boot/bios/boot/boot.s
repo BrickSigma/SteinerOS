@@ -2,7 +2,7 @@
 .code16
 .global _start
 _start:
-    ljmp $0, $_boot
+    jmp _boot
     .fill 8 - (. - _start)  // Pad by 8 bytes for boot information table
 
 boot_information_table:
@@ -14,6 +14,7 @@ boot_information_table:
 
 _boot:
     // Initialize the registers and stack
+    cli
     xor %ax, %ax
     movw %ax, %ds
     movw %ax, %ss
@@ -22,6 +23,7 @@ _boot:
     movb %dl, DRIVE_NUMBER  // Save the disk drive number
 
     cld
+    sti
 
     // Set the video mode (VGA mode 2)
     movw $0x0002, %ax
@@ -142,7 +144,7 @@ DISK_PACKET_ADDRESS:
     lba:            .quad 4         // Second stage bootloader is located at 2KB or sector 4
 
 // Error messages
-INT13_EXTENSIONS_UNSUPPORTED: .ascii "INT0x13H extensions unsupported!\r\n"
+INT13_EXTENSIONS_UNSUPPORTED: .ascii "INT 13H extensions unsupported\r\n"
 .equ INT13_EXTENSIONS_UNSUPPORTED_LEN, . - INT13_EXTENSIONS_UNSUPPORTED
 
 DISK_ERROR_MSG: .ascii "Disk error: "
@@ -152,7 +154,7 @@ ERROR_NO:   .byte 0  // Error number used for printing disk errors
 NEWLINE:    .ascii "\r\n"
 .equ NEWLINE_LEN, . - NEWLINE
 
-LOADING_MSG: .ascii "Loading second stage bootloader...\r\n"
+LOADING_MSG: .ascii "Loading stage 2 bootloader...\r\n"
 .equ LOADING_MSG_LEN, . - LOADING_MSG
 
 EL_TORITO_MSG: .ascii "ISO 9660 CD detected!\r\n"
@@ -170,7 +172,13 @@ _print_loop:
     popa
     ret
 
-    // Padd the end of the bootloader and add the MBR signature
-    .fill 508 - (. - _start)
-    .word 0x1234
+    // Padd the end of the bootloader and add the MBR partition table
+    .fill 440 - (. - _start)
+    .int 0
+    .word 0x0000
+mbr_table:
+    partition_1: .fill 16
+    partition_2: .fill 16
+    partition_3: .fill 16
+    partition_4: .fill 16
     .word 0xaa55
