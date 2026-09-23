@@ -1,6 +1,8 @@
 *.o
 *.bin
+*.BIN
 *.img
+*.iso
 *.a
 *.so
 *.dll

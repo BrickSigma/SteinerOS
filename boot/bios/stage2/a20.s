@@ -15,6 +15,8 @@
  * Note: This does not preserve any registers or flags.
  */
 enable_a20:
+    cli  // Disable interrupts until done with routine
+
     call check_a20
     cmp $1, %ax
     je _enable_a20_exit
@@ -103,6 +105,7 @@ _after_fast_a20:
     movw $0, %ax
     
 _enable_a20_exit:
+    sti
     ret
 
 BIOS_A20_ERROR_MSG: .ascii "BIOS A20 not supported or an error occured!\r\nTrying keyboard controller...\r\n"
@@ -123,8 +126,7 @@ check_a20:
     push %si
     push %di
 
-    // Interrupts already disabled
-    // cli
+    // cli  // Interrupts are disabled in enable_a20 function
 
     xorw %ax, %ax   // AX = 0x0000
     movw %ax, %es
@@ -160,6 +162,7 @@ _check_a20_exit:
     pop %es
     pop %ds
     popf
+    // sti // Interrupts are enabled in enable_a20 function
     ret
 
 // A20 wait function for keyboard controller

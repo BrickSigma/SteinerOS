@@ -27,7 +27,12 @@ target_include_directories(SecondStageBootloader
 )
 
 # Linker options
-target_link_libraries(SecondStageBootloader PRIVATE bios_vga)
+target_link_libraries(SecondStageBootloader 
+    PRIVATE 
+        bios_vga
+        bios_disk
+)
+
 target_link_options(SecondStageBootloader PRIVATE 
     -nostdlib 
     "-T${CMAKE_CURRENT_SOURCE_DIR}/second_stage.ld"
@@ -38,5 +43,9 @@ add_custom_command(TARGET SecondStageBootloader
     POST_BUILD
     COMMAND ${CROSS_PREFIX}objcopy -O binary 
                                     ${CMAKE_CURRENT_BINARY_DIR}/SecondStageBootloader.elf 
-                                    second_stage.bin
+                                    ${CMAKE_CURRENT_BINARY_DIR}/second_stage.bin
+)
+
+set_target_properties(SecondStageBootloader PROPERTIES
+    ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/second_stage.bin"
 )
