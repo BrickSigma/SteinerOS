@@ -15,6 +15,7 @@ typedef struct __attribute__((packed)) BootloaderArgs
  */
 void bootloader_main(BootloaderArgs *args, void *ret)
 {
+    (void)ret;
     VGA_Init();
 
     const char *PM_MSG = "Protected mode enabled and running in C!\n";

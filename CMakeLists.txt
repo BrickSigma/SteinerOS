@@ -16,16 +16,16 @@ set(OUTPUT_IMG "${CMAKE_BINARY_DIR}/SteinerOS.iso")
 
 # Copy the bootloader binary file
 add_custom_target(SteinerOS ALL
-    COMMAND sh ${CMAKE_SOURCE_DIR}/cdrom.sh ${CMAKE_BINARY_DIR} SteinerOS.img
+    COMMAND sh ${CMAKE_SOURCE_DIR}/cdrom.sh ${CMAKE_BINARY_DIR}
 )
 
 add_dependencies(SteinerOS 
-    Bootloader 
+    CD_Bootloader 
     SecondStageBootloader
 )
 
 set_target_properties(SteinerOS PROPERTIES
-    ADDITIONAL_CLEAN_FILES ${OUTPUT_IMG}
+    ADDITIONAL_CLEAN_FILES "${OUTPUT_IMG};${CMAKE_BINARY_DIR}/isodir"
 )
 
 # Additional run target to automatically run the OS
@@ -38,6 +38,6 @@ add_custom_target(run
 
 # Separate run target for running the `.img` file instead of CDROM
 add_custom_target(run_disk
-    COMMAND ${QEMU_EXECUTABLE} -drive format=raw,file=${CMAKE_BINARY_DIR}/SteinerOS.img
+    COMMAND ${QEMU_EXECUTABLE} -drive format=raw,file=${OUTPUT_IMG}
     DEPENDS ${OUTPUT_IMG}
 )

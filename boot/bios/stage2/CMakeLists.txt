@@ -43,5 +43,9 @@ add_custom_command(TARGET SecondStageBootloader
     POST_BUILD
     COMMAND ${CROSS_PREFIX}objcopy -O binary 
                                     ${CMAKE_CURRENT_BINARY_DIR}/SecondStageBootloader.elf 
-                                    second_stage.bin
+                                    ${CMAKE_CURRENT_BINARY_DIR}/second_stage.bin
+)
+
+set_target_properties(SecondStageBootloader PROPERTIES
+    ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/second_stage.bin"
 )

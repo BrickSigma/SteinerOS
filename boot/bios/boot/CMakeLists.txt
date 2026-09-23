@@ -1,23 +1,44 @@
 # CMakeLists file to build the MBR boot code for the bootloader
+# Compiler flags for assembly
+set(ASFLAGS --32)
 
-set(INC_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}")
-set(CFLAGS -std=gnu99 -ffreestanding -nostdlib -O2 -Wall -Wextra -mgeneral-regs-only)
+# Compiler flags for C
+set(CFLAGS -std=gnu99 -ffreestanding -nostdlib -Wall -Wextra -mgeneral-regs-only)
 
-# First stage bootloader target setup
-add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/boot.o
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/boot.s
-    COMMAND ${CROSS_PREFIX}as --32 ${CMAKE_CURRENT_SOURCE_DIR}/boot.s -o ${CMAKE_CURRENT_BINARY_DIR}/boot.o
+add_executable(CD_Bootloader)
+
+set_target_properties(CD_Bootloader PROPERTIES SUFFIX ".elf")
+
+target_sources(CD_Bootloader
+    PRIVATE
+        boot.s
 )
 
-add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/boot.bin
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/boot.o
-    COMMAND ${CROSS_PREFIX}ld -T ${CMAKE_CURRENT_SOURCE_DIR}/boot.ld ${CMAKE_CURRENT_BINARY_DIR}/boot.o -o ${CMAKE_CURRENT_BINARY_DIR}/boot.bin
+# Compiler options
+target_compile_options(CD_Bootloader
+    PRIVATE
+        $<$<COMPILE_LANGUAGE:C>: ${CFLAGS}>
+        $<$<COMPILE_LANGUAGE:ASM>: ${ASLAGS}>
 )
 
-add_custom_target(Bootloader ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/boot.bin)
+target_include_directories(CD_Bootloader
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-set_target_properties(Bootloader PROPERTIES
-    ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/boot.o;${CMAKE_CURRENT_BINARY_DIR}/boot.bin"
+target_link_options(CD_Bootloader PRIVATE 
+    -nostdlib 
+    "-T${CMAKE_CURRENT_SOURCE_DIR}/boot.ld"
+)
+
+# Custom command to convert ELF file to flat binary
+add_custom_command(TARGET CD_Bootloader
+    POST_BUILD
+    COMMAND ${CROSS_PREFIX}objcopy -O binary 
+                                    ${CMAKE_CURRENT_BINARY_DIR}/CD_Bootloader.elf 
+                                    ${CMAKE_CURRENT_BINARY_DIR}/boot.bin
+)
+
+set_target_properties(CD_Bootloader PROPERTIES
+    ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_BINARY_DIR}/boot.bin"
 )
