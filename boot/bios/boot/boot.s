@@ -268,8 +268,7 @@ _file_found:
 
     // Padd the end of the bootloader and add the MBR partition table
     .fill 432 - (. - _start)
-    .ascii "HI"
-    .fill 6 // Pad by 8 because xorriso overwrites 0x1B0-0x1FD
+    .fill 8 // Pad by 8 because xorriso overwrites 0x1B0-0x1FD
     .int 0
     .word 0x0000
 mbr_table:
