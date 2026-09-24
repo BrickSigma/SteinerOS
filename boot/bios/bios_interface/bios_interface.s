@@ -116,8 +116,7 @@ _call_bios_int_real_mode:
     movl EDI, %edi
     movw ES, %es
     movw DS, %ds
-    jmp _int_call
-    .ascii "INT HERE:"  // Used as a marker when viewing the raw memory
+    jmp _int_call  // Used to reset the CPU cache
 
     // Since we can't use a variable in an interrupt, I'm using a hack
     // where the code will modify the raw byte for it.
@@ -139,7 +138,7 @@ _int_call:
     // Save the flags as well
     pushfl
     popl %eax
-    movl %eax, EFLAGS
+    movl %eax, %cs:EFLAGS
 
     popal
 
