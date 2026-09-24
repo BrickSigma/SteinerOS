@@ -3,6 +3,7 @@
 
 #include "vga.h"
 #include "disk.h"
+#include "bios_interface.h"
 
 typedef struct __attribute__((packed)) BootloaderArgs
 {
@@ -28,6 +29,14 @@ void bootloader_main(BootloaderArgs *args, void *ret)
 
     int value = *(int *)(0x7d000 + 508);
     VGA_Printf("%p\nStatus: %d\n", value, status);
+
+    Registers r;
+    r.eax = (0x0e << 8) | (uint8_t)'H';
+    r.ebx = 0;
+    VGA_Printf("Registers: %p\nEAX: %p EBX: %p\n", &r, r.eax, r.ebx);
+    call_bios_int(0x10, &r);
+
+    VGA_Print("BIOS Call Worked!\n");
 
     return;
 }

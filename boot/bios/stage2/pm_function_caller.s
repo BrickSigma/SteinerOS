@@ -10,6 +10,8 @@
  *
  *          `void c_function(void *args_struct, void *out_struct);`
  *
+ * NOTE 2: The C function must initialize it's own IDT when called as it isn't changed in this function
+ *
  * To return a value, a pointer to a struct containing the return values is passed using ECX, and maps
  * to `out_struct` in the function callback.
  */
@@ -69,21 +71,21 @@ _pm_function_cb_protected_mode:
     sti // Enable interrupts again
 
     // Call the C function in protected mode
-    subl $8, %esp
+    subl $8, %esp  // Aligns the stack to 16 bytes
     pushl %ecx
     pushl %ebx
     call *%eax
-    addl $16, %esp
+    addl $16, %esp  // Pop all the arguments
 
     /**
      * Now we need to get back into real mode again, following these steps:
      *  [x] Disable interrupts
      *  [x] Far jump to 16-bit protected mode using the 16-bit segment index in the GDT (loaded earlier)
      *  [x] Load the data segment selectors with 16-bit data segment
+     *  [x] Load the real-mode IDT again
      *  [x] Disable protected mode (PE in cr0 to 0)
      *  [x] Far jump to real mode with real mode segment selector (0)
      *  [x] Reload data segments to 0 (original boot.s setup)
-     *  [x] Load the real mode IDT again
      *  [x] Restore the stack pointer again
      *  [x] Enable interrupts again
      */
@@ -101,6 +103,9 @@ _pm_function_cb_disable_pm:
     movw %ax, %ds
     movw %ax, %ss
 
+    // Load the IDT
+    lidt (idt_real)
+
     // Disable protected mode and go back to real mode
     mov %cr0, %eax
     andb $0xfe, %al     // Unset PE bit in CR0
@@ -109,13 +114,10 @@ _pm_function_cb_disable_pm:
 
     .code16
 _pm_function_cb_real_mode:
-    // Restore previous SP and SS
     xorw %ax, %ax
     movw %ax, %ss
     movw %ax, %ds
-
-    // Load the IDT
-    lidt (idt_real)
+    movw %ax, %es
 
     // Restore the cursor's position
     movl vga_row, %eax      // Save the row

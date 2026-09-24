@@ -28,7 +28,8 @@ target_include_directories(SecondStageBootloader
 
 # Linker options
 target_link_libraries(SecondStageBootloader 
-    PRIVATE 
+    PRIVATE
+        bios_interface
         bios_vga
         bios_disk
 )

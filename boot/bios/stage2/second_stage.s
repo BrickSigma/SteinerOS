@@ -116,4 +116,5 @@ BOOTLOADER_ARGS:
     boot_drive_number:      .byte 0
     boot_bytes_per_sector:  .word 0
 
+// Used to hold the return value of the bootloader
 BOOTLOADER_RET_VALUE: .int 0

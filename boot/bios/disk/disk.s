@@ -63,6 +63,7 @@ load_lba_sector:
     // Jump to 16-bit protected mode segment
     ljmp $0x18, $_load_lba_sector_disable_pm
 
+    .code16
 _load_lba_sector_disable_pm:
     // Set the data segments
     movw $0x20, %ax  // Data segment index in GDT
