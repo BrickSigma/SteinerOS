@@ -37,15 +37,6 @@ pm_function_cb:
     // Save the current SP value
     movw %sp, PREVIOUS_SP
 
-    // Also save the cursor's position
-    movb $0x03, %ah
-    xorb %bh, %bh
-    int $0x10
-    movzx %dh, %eax     // Cursor row
-    movzx %dl, %edx     // Cursor column
-    movl %eax, vga_row  // Save the row
-    movl %edx, vga_col  // Save the column
-
     mov %cr0, %eax
     orb $1, %al     // Set PE bit in CR0
     mov %eax, %cr0
@@ -96,7 +87,7 @@ _pm_function_cb_protected_mode:
 
     // Jump to 16-bit protected mode segment
     ljmp $0x18, $_pm_function_cb_disable_pm
-
+    .code16
 _pm_function_cb_disable_pm:
     // Set the data segments
     movw $0x20, %ax  // Data segment index in GDT
@@ -119,15 +110,8 @@ _pm_function_cb_real_mode:
     movw %ax, %ds
     movw %ax, %es
 
-    // Restore the cursor's position
-    movl vga_row, %eax      // Save the row
-    movl vga_col, %edx      // Save the column
-    movb %al, %dh
-    xorb %bh, %bh
-    movb $0x02, %ah
-    int $0x10
-
     // Restore the stack pointer again
+    xorl %esp, %esp         // Zero ESP
     movw PREVIOUS_SP, %sp
 
     // Enable interrupts again

@@ -20,7 +20,7 @@ void bootloader_main(BootloaderArgs *args, void *ret)
 
     uint8_t drive_number = args->boot_drive;
 
-    VGA_Init();
+    VGA_ClearScreen();
 
     const char *PM_MSG = "Protected mode enabled and running in C!\n";
     VGA_Print(PM_MSG);
@@ -32,7 +32,7 @@ void bootloader_main(BootloaderArgs *args, void *ret)
 
     int value = *(int *)(0x7d000 + 508);
     VGA_Printf("%p\nStatus: %d\n", value, status);
-    
+
     VGA_Print("BIOS Call Worked!\n");
 
     return;

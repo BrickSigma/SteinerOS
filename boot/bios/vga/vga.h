@@ -39,9 +39,6 @@ typedef enum VGA_Attribute
     BRIGHT_WHITE,
 } VGA_Attribute;
 
-// Initializes the VGA cursor pointer
-void VGA_Init(void);
-
 // Set the cursor position
 void VGA_SetCursor(VGA_Cursor cursor);
 
