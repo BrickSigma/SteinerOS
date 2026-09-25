@@ -10,10 +10,11 @@
  */
 uint8_t load_lba_sector(
     uint16_t read_sectors, // The number of sectors to read from disk
-    uint16_t segment,      // The 16-bit segment to load into
     uint16_t offset,       // The 16-bit offset to load into
+    uint16_t segment,      // The 16-bit segment to load into
     uint32_t lba_high,     // High 32 bits of LBA address
-    uint32_t lba_low       // Low 32 bits of LBA address
+    uint32_t lba_low,      // Low 32 bits of LBA address
+    uint8_t drive_number   // The drive number (set by the BIOS in DL)
 );
 
 #endif // _DISK_H

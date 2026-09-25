@@ -17,6 +17,9 @@ typedef struct __attribute__((packed)) BootloaderArgs
 void bootloader_main(BootloaderArgs *args, void *ret)
 {
     (void)ret;
+
+    uint8_t drive_number = args->boot_drive;
+
     VGA_Init();
 
     const char *PM_MSG = "Protected mode enabled and running in C!\n";
@@ -25,17 +28,11 @@ void bootloader_main(BootloaderArgs *args, void *ret)
 
     VGA_Print("Loading LBA 0 and checking if it works...\n");
 
-    int status = load_lba_sector(1, 0x7d00, 0, 0, 0);
+    int status = load_lba_sector(1, 0, 0x7d00, 0, 0, drive_number);
 
     int value = *(int *)(0x7d000 + 508);
     VGA_Printf("%p\nStatus: %d\n", value, status);
-
-    Registers r;
-    r.eax = (0x0e << 8) | (uint8_t)'H';
-    r.ebx = 0;
-    VGA_Printf("Registers: %p\nEAX: %p EBX: %p\n", &r, r.eax, r.ebx);
-    call_bios_int(0x10, &r);
-
+    
     VGA_Print("BIOS Call Worked!\n");
 
     return;

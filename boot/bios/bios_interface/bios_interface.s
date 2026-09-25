@@ -76,6 +76,9 @@ _call_bios_int_disable_pm:
     // Set the data segments
     movw $0x20, %ax  // Data segment index in GDT
     movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %fs
+    movw %ax, %gs
     movw %ax, %ss
 
     // Load the real-mpde IDT
@@ -91,8 +94,11 @@ _call_bios_int_disable_pm:
 _call_bios_int_real_mode:
     // Restore previous SP and SS
     xorw %ax, %ax
-    movw %ax, %ss
     movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %fs
+    movw %ax, %gs
+    movw %ax, %ss
 
     // Restore the real-mode stack pointer again (this was defined in the `pm_function_caller.s` file)
     movw PREVIOUS_SP, %sp
