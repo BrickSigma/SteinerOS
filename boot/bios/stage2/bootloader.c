@@ -3,6 +3,7 @@
 
 #include "vga.h"
 #include "disk.h"
+#include "bios_interface.h"
 
 typedef struct __attribute__((packed)) BootloaderArgs
 {
@@ -16,7 +17,10 @@ typedef struct __attribute__((packed)) BootloaderArgs
 void bootloader_main(BootloaderArgs *args, void *ret)
 {
     (void)ret;
-    VGA_Init();
+
+    uint8_t drive_number = args->boot_drive;
+
+    VGA_ClearScreen();
 
     const char *PM_MSG = "Protected mode enabled and running in C!\n";
     VGA_Print(PM_MSG);
@@ -24,10 +28,12 @@ void bootloader_main(BootloaderArgs *args, void *ret)
 
     VGA_Print("Loading LBA 0 and checking if it works...\n");
 
-    int status = load_lba_sector(1, 0x7d00, 0, 0, 0);
+    int status = load_lba_sector(1, 0, 0x7d00, 0, 0, drive_number);
 
     int value = *(int *)(0x7d000 + 508);
     VGA_Printf("%p\nStatus: %d\n", value, status);
+
+    VGA_Print("BIOS Call Worked!\n");
 
     return;
 }

@@ -61,16 +61,6 @@ _hang:
 .global DRIVE_NUMBER
 DRIVE_NUMBER: .byte 0  // Drive number
 
-.global VGA_CURSOR_PTR
-// VGA cursor pointer
-VGA_CURSOR_PTR:
-    .int VGA_CURSOR_STRUCT
-
-// VGA cursor struct
-VGA_CURSOR_STRUCT:
-    vga_row: .int 0
-    vga_col: .int 0
-
 PM_SUCCESS: .ascii "C function call worked! Back in 16-bit real mode!\r\n"
 .equ PM_SUCCESS_MSG_LEN, . - PM_SUCCESS
 
@@ -116,4 +106,5 @@ BOOTLOADER_ARGS:
     boot_drive_number:      .byte 0
     boot_bytes_per_sector:  .word 0
 
+// Used to hold the return value of the bootloader
 BOOTLOADER_RET_VALUE: .int 0

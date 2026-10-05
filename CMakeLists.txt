@@ -29,7 +29,7 @@ set_target_properties(SteinerOS PROPERTIES
 )
 
 # Additional run target to automatically run the OS
-find_program(QEMU_EXECUTABLE qemu-system-x86_64 REQUIRED)
+find_program(QEMU_EXECUTABLE qemu-system-i386 REQUIRED)
 
 add_custom_target(run
     COMMAND ${QEMU_EXECUTABLE} -cdrom ${OUTPUT_IMG}
