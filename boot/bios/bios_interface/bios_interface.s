@@ -21,7 +21,7 @@
 // NOTE: Make sure that the below have been defined somewhere when linking!
 .extern PREVIOUS_SP
 .extern enable_NMI_16bit
-.extern disable_NMI
+.extern disable_NMI_16bit
 .extern enable_NMI_32bit
 .extern disable_NMI_32bit
 
@@ -148,7 +148,7 @@ _int_call:
 
     // Time to go back to protected mode
     cli
-    call disable_NMI
+    call disable_NMI_16bit
 
     mov %cr0, %eax
     orb $1, %al     // Set PE bit in CR0

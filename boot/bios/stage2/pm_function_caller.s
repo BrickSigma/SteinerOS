@@ -32,7 +32,7 @@ pm_function_cb:
 
     // Disable interrupts and the NMI
     cli
-    call disable_NMI
+    call disable_NMI_16bit
 
     // Save the current SP value
     movw %sp, PREVIOUS_SP

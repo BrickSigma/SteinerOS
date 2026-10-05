@@ -4,6 +4,8 @@
 #include "vga.h"
 #include "disk.h"
 #include "bios_interface.h"
+#include "interrupts.h"
+#include "pic.h"
 
 typedef struct __attribute__((packed)) BootloaderArgs
 {
@@ -20,6 +22,14 @@ void bootloader_main(BootloaderArgs *args, void *ret)
 
     uint8_t drive_number = args->boot_drive;
 
+    // Initialize the IDT before anything else
+    disable_interrupts();
+    PIC_remap(0x20, 0x28);
+    PIC_disable();
+    idt_init();
+    IRQ_clear_mask(1);  // Enable the keyboard interrupt
+    enable_interrupts();
+
     VGA_ClearScreen();
 
     const char *PM_MSG = "Protected mode enabled and running in C!\n";
@@ -35,7 +45,6 @@ void bootloader_main(BootloaderArgs *args, void *ret)
 
     VGA_Print("BIOS Call Worked!\n");
 
-    // This code is breaking for some reason... probably since I don't have an IDT yet...
     while (1) {}
 
     return;

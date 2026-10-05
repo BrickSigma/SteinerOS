@@ -14,8 +14,8 @@ enable_NMI_16bit:
 /**
  * Disables the NMI in real mode
  */
- .global disable_NMI
-disable_NMI:
+ .global disable_NMI_16bit
+disable_NMI_16bit:
     inb $0x70, %al
     orb $0x80, %al
     outb %al, $0x70
