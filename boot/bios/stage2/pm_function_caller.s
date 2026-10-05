@@ -83,7 +83,7 @@ _pm_function_cb_protected_mode:
 
     // Disable interrupts and NMI
     cli  
-    call disabled_NMI_32bit
+    call disable_NMI_32bit
 
     // Jump to 16-bit protected mode segment
     ljmp $0x18, $_pm_function_cb_disable_pm

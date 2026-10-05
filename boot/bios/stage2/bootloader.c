@@ -35,5 +35,8 @@ void bootloader_main(BootloaderArgs *args, void *ret)
 
     VGA_Print("BIOS Call Worked!\n");
 
+    // This code is breaking for some reason... probably since I don't have an IDT yet...
+    while (1) {}
+
     return;
 }

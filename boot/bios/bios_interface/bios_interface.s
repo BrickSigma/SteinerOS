@@ -15,19 +15,13 @@
  *
  * NOTE: If an interrupt needs to access a buffer, make sure it lies in memory below 1MB or you'll
  *      get undefined behaviour!
- *
- * NOTE 2: This function resets the IDT to the real-mode IVT. You'll need to setup the IDT again
- *      after calling this function.
- *
  */
 .section .text
 
 // NOTE: Make sure that the below have been defined somewhere when linking!
 .extern PREVIOUS_SP
-.extern enable_NMI
-.extern disable_NMI
 .extern enable_NMI_32bit
-.extern disabled_NMI_32bit
+.extern disable_NMI_32bit
 
 .global asm_call_bios_int
 asm_call_bios_int:
@@ -66,7 +60,7 @@ asm_call_bios_int:
 
     // Disable interrupts
     cli
-    call disabled_NMI_32bit
+    call disable_NMI_32bit
 
     // Jump to 16-bit protected mode segment
     ljmp $0x18, $_call_bios_int_disable_pm
@@ -80,9 +74,6 @@ _call_bios_int_disable_pm:
     movw %ax, %fs
     movw %ax, %gs
     movw %ax, %ss
-
-    // Load the real-mpde IDT
-    lidt (idt_real)
 
     // Disable protected mode and go back to real mode
     mov %cr0, %eax
@@ -102,10 +93,6 @@ _call_bios_int_real_mode:
 
     // Restore the real-mode stack pointer again (this was defined in the `pm_function_caller.s` file)
     movw PREVIOUS_SP, %sp
-
-    // Enable interrupts again
-    call enable_NMI
-    sti
 
     // We're now in real mode again, let's call the bios interrupt
     
@@ -147,10 +134,6 @@ _int_call:
     movl %eax, %cs:EFLAGS
 
     popal
-
-    // Time to go back to protected mode
-    cli
-    call disable_NMI
 
     mov %cr0, %eax
     orb $1, %al     // Set PE bit in CR0

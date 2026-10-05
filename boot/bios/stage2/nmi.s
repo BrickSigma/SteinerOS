@@ -39,8 +39,8 @@ enable_NMI_32bit:
 /**
  * Disabled the NMI in protected mode
  */
-.global disabled_NMI_32bit
-disabled_NMI_32bit:
+.global disable_NMI_32bit
+disable_NMI_32bit:
     pushl %eax
     inb $0x70, %al
     orb $0x80, %al
