@@ -3,8 +3,8 @@
  * Enables the NMI in real mode
  */
 .code16
-.global enable_NMI
-enable_NMI:
+.global enable_NMI_16bit
+enable_NMI_16bit:
     inb $0x70, %al
     andb $0x7f, %al
     outb %al, $0x70

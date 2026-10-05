@@ -20,6 +20,8 @@
 
 // NOTE: Make sure that the below have been defined somewhere when linking!
 .extern PREVIOUS_SP
+.extern enable_NMI_16bit
+.extern disable_NMI
 .extern enable_NMI_32bit
 .extern disable_NMI_32bit
 
@@ -75,6 +77,11 @@ _call_bios_int_disable_pm:
     movw %ax, %gs
     movw %ax, %ss
 
+    // Save the original IDT
+    sidt (PM_IDT)
+    // Load the real-mpde IDT
+    lidt (idt_real)
+
     // Disable protected mode and go back to real mode
     mov %cr0, %eax
     andb $0xfe, %al     // Unset PE bit in CR0
@@ -93,6 +100,10 @@ _call_bios_int_real_mode:
 
     // Restore the real-mode stack pointer again (this was defined in the `pm_function_caller.s` file)
     movw PREVIOUS_SP, %sp
+
+    // Enable interrupts again
+    call enable_NMI_16bit
+    sti
 
     // We're now in real mode again, let's call the bios interrupt
     
@@ -135,6 +146,10 @@ _int_call:
 
     popal
 
+    // Time to go back to protected mode
+    cli
+    call disable_NMI
+
     mov %cr0, %eax
     orb $1, %al     // Set PE bit in CR0
     mov %eax, %cr0
@@ -151,6 +166,9 @@ _call_bios_int_protected_mode:
     movw %dx, %gs
     movw %dx, %ss
     movl PREVIOUS_ESP, %esp   // Restore the old stack pointer again
+
+    // Load the original IDT again
+    lidt (PM_IDT)
 
     // Enable the NMI again
     call enable_NMI_32bit
@@ -183,3 +201,8 @@ REGISTERS:
 
 // Previous stack pointer for protected mode
 PREVIOUS_ESP: .int 0
+
+// Protected mode IDT
+PM_IDT:
+    pm_idt_limit:   .word 0
+    pm_idt_base:    .int 0

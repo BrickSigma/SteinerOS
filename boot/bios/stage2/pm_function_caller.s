@@ -57,9 +57,9 @@ _pm_function_cb_protected_mode:
     movw %dx, %ss
     mov $0x7d000, %esp   // Set the stack pointer to a much higher memory location
 
-    // Enable the NMI again
-    call enable_NMI_32bit
-    sti // Enable interrupts again
+    // Interrupts must remain disabled and will only be enabled by the C code
+    // call enable_NMI_32bit
+    // sti
 
     // Call the C function in protected mode
     subl $8, %esp  // Aligns the stack to 16 bytes
@@ -115,7 +115,7 @@ _pm_function_cb_real_mode:
     movw PREVIOUS_SP, %sp
 
     // Enable interrupts again
-    call enable_NMI
+    call enable_NMI_16bit
     sti
 
     // Restore the registers
