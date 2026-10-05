@@ -21,4 +21,5 @@ xorriso -as mkisofs -o ${CMAKE_BINARY_DIR}/SteinerOS.iso -V STEINEROS \
         ${CDROM_DIR} \
         -b BOOT/BOOT.BIN \
         -no-emul-boot \
+        -boot-load-size 4 \
         -isohybrid-mbr ${BOOTLOADER}
