@@ -9,8 +9,11 @@ project(SteinerOS
 
 enable_language(ASM)
 
-# Build the bootloader
+# Add the bootloader
 add_subdirectory(boot)
+
+# Add the common libraries folder (for architecture independent items)
+add_subdirectory(common)
 
 set(OUTPUT_IMG "${CMAKE_BINARY_DIR}/SteinerOS.iso")
 
@@ -32,12 +35,12 @@ set_target_properties(SteinerOS PROPERTIES
 find_program(QEMU_EXECUTABLE qemu-system-i386 REQUIRED)
 
 add_custom_target(run
-    COMMAND ${QEMU_EXECUTABLE} -cdrom ${OUTPUT_IMG}
+    COMMAND ${QEMU_EXECUTABLE} -cdrom ${OUTPUT_IMG} -d int
     DEPENDS ${OUTPUT_IMG}
 )
 
 # Separate run target for running the `.img` file instead of CDROM
 add_custom_target(run_disk
-    COMMAND ${QEMU_EXECUTABLE} -drive format=raw,file=${OUTPUT_IMG}
+    COMMAND ${QEMU_EXECUTABLE} -drive format=raw,file=${OUTPUT_IMG} -d int
     DEPENDS ${OUTPUT_IMG}
 )

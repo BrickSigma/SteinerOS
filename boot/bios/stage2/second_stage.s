@@ -28,7 +28,7 @@ _start:
 
 _a20_error:
     // Enable NMI again as it was still disabled
-    call enable_NMI
+    call enable_NMI_16bit
 
     movw $A20_ERROR_MSG, %si
     movw $A20_ERROR_MSG_LEN, %cx

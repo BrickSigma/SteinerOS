@@ -3,8 +3,8 @@
  * Enables the NMI in real mode
  */
 .code16
-.global enable_NMI
-enable_NMI:
+.global enable_NMI_16bit
+enable_NMI_16bit:
     inb $0x70, %al
     andb $0x7f, %al
     outb %al, $0x70
@@ -14,8 +14,8 @@ enable_NMI:
 /**
  * Disables the NMI in real mode
  */
- .global disable_NMI
-disable_NMI:
+ .global disable_NMI_16bit
+disable_NMI_16bit:
     inb $0x70, %al
     orb $0x80, %al
     outb %al, $0x70
@@ -39,8 +39,8 @@ enable_NMI_32bit:
 /**
  * Disabled the NMI in protected mode
  */
-.global disabled_NMI_32bit
-disabled_NMI_32bit:
+.global disable_NMI_32bit
+disable_NMI_32bit:
     pushl %eax
     inb $0x70, %al
     orb $0x80, %al

@@ -15,19 +15,15 @@
  *
  * NOTE: If an interrupt needs to access a buffer, make sure it lies in memory below 1MB or you'll
  *      get undefined behaviour!
- *
- * NOTE 2: This function resets the IDT to the real-mode IVT. You'll need to setup the IDT again
- *      after calling this function.
- *
  */
 .section .text
 
 // NOTE: Make sure that the below have been defined somewhere when linking!
 .extern PREVIOUS_SP
-.extern enable_NMI
-.extern disable_NMI
+.extern enable_NMI_16bit
+.extern disable_NMI_16bit
 .extern enable_NMI_32bit
-.extern disabled_NMI_32bit
+.extern disable_NMI_32bit
 
 .global asm_call_bios_int
 asm_call_bios_int:
@@ -66,7 +62,7 @@ asm_call_bios_int:
 
     // Disable interrupts
     cli
-    call disabled_NMI_32bit
+    call disable_NMI_32bit
 
     // Jump to 16-bit protected mode segment
     ljmp $0x18, $_call_bios_int_disable_pm
@@ -81,6 +77,8 @@ _call_bios_int_disable_pm:
     movw %ax, %gs
     movw %ax, %ss
 
+    // Save the original IDT
+    sidt (PM_IDT)
     // Load the real-mpde IDT
     lidt (idt_real)
 
@@ -104,7 +102,7 @@ _call_bios_int_real_mode:
     movw PREVIOUS_SP, %sp
 
     // Enable interrupts again
-    call enable_NMI
+    call enable_NMI_16bit
     sti
 
     // We're now in real mode again, let's call the bios interrupt
@@ -150,7 +148,7 @@ _int_call:
 
     // Time to go back to protected mode
     cli
-    call disable_NMI
+    call disable_NMI_16bit
 
     mov %cr0, %eax
     orb $1, %al     // Set PE bit in CR0
@@ -168,6 +166,9 @@ _call_bios_int_protected_mode:
     movw %dx, %gs
     movw %dx, %ss
     movl PREVIOUS_ESP, %esp   // Restore the old stack pointer again
+
+    // Load the original IDT again
+    lidt (PM_IDT)
 
     // Enable the NMI again
     call enable_NMI_32bit
@@ -200,3 +201,8 @@ REGISTERS:
 
 // Previous stack pointer for protected mode
 PREVIOUS_ESP: .int 0
+
+// Protected mode IDT
+PM_IDT:
+    pm_idt_limit:   .word 0
+    pm_idt_base:    .int 0
