@@ -1,5 +1,11 @@
 # SteinerOS
-SteinerOS is a hobby operating systems project targeting the x86/i686 architecture, with the (eventual) goal of becoming a 32-bit kernel with it's own bootloader, ring 3 userspace applications, and a UNIX/POSIX system.
+SteinerOS is a hobby operating systems project targeting the x86/i686 architecture, with the (eventual) goal of becoming a 32-bit kernel with it's own ~~bootloader~~, ring 3 userspace applications, and a UNIX/POSIX system.
+
+> [!IMPORTANT]  
+> **Project Update Notice**  
+> So far in this project I've been implementing a custom bootloader from scratch for SteinerOS, mostly as a learning exercise. After realizing how complex the bootloader was starting to become, and how mixing it's code with the kernel will end up becoming confusing and probably error-prone, I've decided to move the bootloader to a separate repository under the name **Amadeus Bootloader**.
+> 
+> With that in mind, I'll be working on the bootloader repo for a while and won't touch SteinerOS until the bootloader actually works. If you've been following this project (and thank you if you have), feel free to checkout the [Amadeus Bootloader](https://github.com/BrickSigma/Amadeus-Bootloader) to see my progress there.
 
 ## Contents
 - [Building and Running](#building-and-running)
@@ -17,7 +23,7 @@ Before building, you'll need to setup a cross-compiler to build the project. The
 The project uses [CMake](https://cmake.org) as it's build system over the standard UNIX Makefile used in most OSDev projects. I've setup a CMake presets file ([CMakePresets.json](CMakePresets.json)) to make the build process easier. To build the project, simply run the following in your terminal emulator:
 
 ```bash
-cmake --preset i686
+cmake --preset i686-debug
 cmake --build build
 ```
 
@@ -40,13 +46,8 @@ cmake --build build --target clean
 ## Project Roadmap
 Below is a rough outline of the roadmap I'm following for now:
 
-- [ ] Create a custom multiboot compatible bootloader,
-    - [x] Setup a first and second stage bootloader,
-    - [x] Setup protected mode (GDT, IDT, A20 line, etc...),
-    - [ ] Create some simple drivers (ATA, PCI, VGA, etc...) to load the kernel,
-    - [ ] Build an ELF file parser to jump to the kernel,
 - [ ] Load the C kernel from the bootloader,
-- [ ] Setup paging, IDT, and other essential features,
+- [ ] Setup GDT, paging, IDT, and other essential features,
 - [ ] Setup a ring 3 userspace with a minimal BASH terminal
 
 ## Documentation
@@ -74,6 +75,8 @@ One of the most important parts about OS Dev is finding the right resources and 
 - [Intel 8086 ISA](https://www.eng.auburn.edu/~sylee/ee2220/8086_instruction_set.html) - Full instruction set for the Intel 8086 assembly language.
 - [Ralph Brown's interrupt list](https://web.archive.org/web/20260326152440/https://www.ctyme.com/intr/int.htm) - a listing of all available BIOS interrupt functions for several PCs.
 - [IBM PS2 and PC BIOS Interface Technical Reference (April 1987)](https://archive.org/details/bitsavers_ibmpcps2PSTechnicalReferenceApr87_5816663/page/n1/mode/2up) - a more detailed guide by IBM on the BIOS functions, which mostly helped with understanding the memory layout of the BIOS video modes.
+
+(**Note:** most of these resources are based on the BIOS system and helped me design the bootloader rather than the kernel)
 
 ## AI Usage Disclaimer
 > [!IMPORTANT]  

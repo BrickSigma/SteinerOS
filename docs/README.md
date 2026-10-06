@@ -1,6 +1,10 @@
 # SteinerOS Documentation
 This is the documentation of the source code for SteinerOS.
 
+> [!IMPORTANT]  
+> **Outdated Information**  
+> As mentioned in the [README.md](../README.md) for this project, I've moved the bootloader code into a separate repository. The documentation here is no longer applicable and will be updated once the bootloader is complete.
+
 ## Contents
 - [Boot Sequence](#boot-sequence)
 - [Project Structure](#project-structure)
