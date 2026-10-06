@@ -1,5 +1,10 @@
 // Second stage bootloader script file
-.section .text
+#include "gdt.S"
+#include "pm_function_caller.S"
+#include "a20.S"
+#include "nmi.S"
+
+.section .text.start
 .code16
 .global _start
 _start:
@@ -70,8 +75,10 @@ A20_ENABLED_MSG: .ascii "A20 line enabled!\r\n"
 A20_ERROR_MSG: .ascii "Could not enable the A20 line!\r\n"
 .equ A20_ERROR_MSG_LEN, . - A20_ERROR_MSG
 
+
 // Utility function definitions
 // ============================
+.section .text
 
 /**
  * Teletext print function
@@ -92,11 +99,6 @@ _print_loop:
     loop _print_loop
     popa
     ret
-
-.include "gdt.s"
-.include "pm_function_caller.s"
-.include "a20.s"
-.include "nmi.s"
 
 .code32
 .extern bootloader_main

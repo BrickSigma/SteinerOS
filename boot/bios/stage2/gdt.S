@@ -1,3 +1,4 @@
+.section .text
 // Global descriptor table related items
 // =====================================
 gdtr_descriptor:

@@ -25,9 +25,8 @@ void bootloader_main(BootloaderArgs *args, void *ret)
     // Initialize the IDT before anything else
     disable_interrupts();
     PIC_remap(0x20, 0x28);
-    PIC_disable();
+    PIC_disable(); // Disable all PIC interrupts for now
     idt_init();
-    IRQ_clear_mask(1);  // Enable the keyboard interrupt
     enable_interrupts();
 
     VGA_ClearScreen();
@@ -44,8 +43,6 @@ void bootloader_main(BootloaderArgs *args, void *ret)
     VGA_Printf("%p\nStatus: %d\n", value, status);
 
     VGA_Print("BIOS Call Worked!\n");
-
-    while (1) {}
 
     return;
 }

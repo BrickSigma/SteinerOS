@@ -1,5 +1,5 @@
 # Compiler flags for assembly
-set(ASFLAGS --32)
+set(ASFLAGS -m32)
 
 # Compiler flags for C
 set(CFLAGS -std=gnu99 -ffreestanding -nostdlib -Wall -Wextra -mgeneral-regs-only)
@@ -9,7 +9,7 @@ add_library(interrupts STATIC)
 target_sources(interrupts
     PRIVATE
         interrupts.c
-        isr.s
+        isr.S
         pic.c
     PUBLIC
         FILE_SET HEADERS
@@ -28,5 +28,5 @@ target_link_libraries(interrupts
 target_compile_options(interrupts
     PRIVATE
         $<$<COMPILE_LANGUAGE:C>: ${CFLAGS}>
-        $<$<COMPILE_LANGUAGE:ASM>: ${ASLAGS}>
+        $<$<COMPILE_LANGUAGE:ASM>: ${ASFLAGS}>
 )

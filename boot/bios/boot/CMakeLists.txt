@@ -1,6 +1,6 @@
 # CMakeLists file to build the MBR boot code for the bootloader
 # Compiler flags for assembly
-set(ASFLAGS --32)
+set(ASFLAGS -m32)
 
 # Compiler flags for C
 set(CFLAGS -std=gnu99 -ffreestanding -nostdlib -Wall -Wextra -mgeneral-regs-only)
@@ -11,14 +11,14 @@ set_target_properties(CD_Bootloader PROPERTIES SUFFIX ".elf")
 
 target_sources(CD_Bootloader
     PRIVATE
-        boot.s
+        boot.S
 )
 
 # Compiler options
 target_compile_options(CD_Bootloader
     PRIVATE
         $<$<COMPILE_LANGUAGE:C>: ${CFLAGS}>
-        $<$<COMPILE_LANGUAGE:ASM>: ${ASLAGS}>
+        $<$<COMPILE_LANGUAGE:ASM>: ${ASFLAGS}>
 )
 
 target_include_directories(CD_Bootloader

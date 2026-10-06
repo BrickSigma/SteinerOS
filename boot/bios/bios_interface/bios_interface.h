@@ -16,6 +16,9 @@ typedef struct __attribute__((packed)) Registers {
     uint32_t eflags;
 } Registers;
 
+// Create an instance of the registers struct whith all values zeroed
+Registers Registers_Zeroed();
+
 /**
  * Used to call BIOS interrupts from 32-bit protected mode.
  * 

@@ -6,13 +6,23 @@
     },
     "configurePresets": [
         {
-            "name": "i686",
-            "description": "Build for i686 architecture",
+            "name": "i686-debug",
+            "description": "Debug build for i686 architecture",
             "binaryDir": "${sourceDir}/build",
             "generator": "Unix Makefiles",
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "toolchain.cmake",
                 "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "i686-release",
+            "description": "Release build for i686 architecture",
+            "binaryDir": "${sourceDir}/release",
+            "generator": "Unix Makefiles",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "toolchain.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
             }
         }
     ]
