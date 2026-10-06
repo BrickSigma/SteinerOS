@@ -18,7 +18,7 @@ target_sources(CD_Bootloader
 target_compile_options(CD_Bootloader
     PRIVATE
         $<$<COMPILE_LANGUAGE:C>: ${CFLAGS}>
-        $<$<COMPILE_LANGUAGE:ASM>: ${ASLAGS}>
+        $<$<COMPILE_LANGUAGE:ASM>: ${ASFLAGS}>
 )
 
 target_include_directories(CD_Bootloader

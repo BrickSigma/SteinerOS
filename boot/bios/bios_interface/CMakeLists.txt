@@ -20,5 +20,5 @@ target_sources(bios_interface
 target_compile_options(bios_interface
     PRIVATE
         $<$<COMPILE_LANGUAGE:C>: ${CFLAGS}>
-        $<$<COMPILE_LANGUAGE:ASM>: ${ASLAGS}>
+        $<$<COMPILE_LANGUAGE:ASM>: ${ASFLAGS}>
 )

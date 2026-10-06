@@ -18,7 +18,7 @@ target_sources(SecondStageBootloader
 target_compile_options(SecondStageBootloader
     PRIVATE
         $<$<COMPILE_LANGUAGE:C>: ${CFLAGS}>
-        $<$<COMPILE_LANGUAGE:ASM>: ${ASLAGS}>
+        $<$<COMPILE_LANGUAGE:ASM>: ${ASFLAGS}>
 )
 
 target_include_directories(SecondStageBootloader
