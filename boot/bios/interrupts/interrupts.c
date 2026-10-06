@@ -33,8 +33,6 @@ static bool vectors[IDT_MAX_DESCRIPTORS];
 // ISR stub table mapped with default handlers
 extern void *isr_stub_table[];
 
-extern void *keyboard_handler(void);
-
 void idt_init()
 {
     idtr.base = (uintptr_t)&idt[0];
@@ -45,9 +43,6 @@ void idt_init()
         idt_set_descriptor(vector, isr_stub_table[vector], 0x8e);
         vectors[vector] = true;
     }
-
-    // Set the keyboard isr manually
-    idt_set_descriptor(0x21, keyboard_handler, 0b10001110);
 
     __asm__ volatile("lidt %0" : : "m"(idtr)); // load the new IDT
 }
