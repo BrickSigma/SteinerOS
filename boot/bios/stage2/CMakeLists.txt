@@ -1,5 +1,5 @@
 # Compiler flags for assembly
-set(ASFLAGS --32)
+set(ASFLAGS -m32)
 
 # Compiler flags for C
 set(CFLAGS -std=gnu99 -ffreestanding -nostdlib -Wall -Wextra -mgeneral-regs-only)
@@ -10,7 +10,7 @@ set_target_properties(SecondStageBootloader PROPERTIES SUFFIX ".elf")
 
 target_sources(SecondStageBootloader
     PRIVATE
-        second_stage.s
+        second_stage.S
         bootloader.c
 )
 

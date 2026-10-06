@@ -1,6 +1,6 @@
 # CMakeLists file to build the MBR boot code for the bootloader
 # Compiler flags for assembly
-set(ASFLAGS --32)
+set(ASFLAGS -m32)
 
 # Compiler flags for C
 set(CFLAGS -std=gnu99 -ffreestanding -nostdlib -Wall -Wextra -mgeneral-regs-only)
