@@ -82,6 +82,12 @@ _call_bios_int_disable_pm:
     // Load the real-mpde IDT
     lidt (idt_real)
 
+    // Also remap the PIC back to it's original vectors (0x08 and 0x70)
+    call PIC_save_IMR  // First save the old interrupt mask registers
+    movb $0x08, %bl
+    movb $0x70, %cl
+    call PIC_remap  // The PIC will be remaped and also disabled for safety
+
     // Disable protected mode and go back to real mode
     mov %cr0, %eax
     andb $0xfe, %al     // Unset PE bit in CR0
@@ -170,6 +176,13 @@ _call_bios_int_protected_mode:
     // Load the original IDT again
     lidt (PM_IDT)
 
+    // Restore the PIC again as well
+    movb $0x20, %bl
+    movb $0x28, %cl
+    call PIC_remap
+    // Restor the old interrupt mask for the PIC
+    call PIC_restore_IMR
+
     // Enable the NMI again
     call enable_NMI_32bit
     sti // Enable interrupts again
@@ -206,3 +219,77 @@ PREVIOUS_ESP: .int 0
 PM_IDT:
     pm_idt_limit:   .word 0
     pm_idt_base:    .int 0
+
+.code16
+
+// Used to save the interrupt mask for the master and slave PIC
+PIC_save_IMR:
+    inb $0x21, %al
+    movb %al, master_IMR
+    inb $0xa1, %al
+    movb %al, slave_IMR
+    ret
+
+// Used to restore the interrupt mask for the master and slave PIC
+PIC_restore_IMR:
+    .code32
+    movb master_IMR, %al
+    outb %al, $0x21
+    movb slave_IMR, %al
+    outb %al, $0xa1
+    ret
+
+PIC_IMR:
+    master_IMR: .byte 0
+    slave_IMR:  .byte 0
+
+.code16
+// Used to wait on the I/O port
+.macro IO_WAIT
+    xorb %al, %al
+    outb %al, $0x80
+.endm
+
+// Remap the PIC to new offsets. The master offset should be placed in BL and the slave offset in CL
+// Note: this code is translated from the OSDev wiki: https://wiki.osdev.org/8259_PIC#Initialisation
+PIC_remap:
+    // Start the initialization sequence
+    movb $0x11, %al
+    outb %al, $0x20
+    IO_WAIT
+    movb $0x11, %al
+    outb %al, $0xa0
+    IO_WAIT
+
+    // Set the master PIC vector offset
+    movb %bl, %al
+    outb %al, $0x21
+    IO_WAIT
+    // Set the slave PIC vector offset
+    movb %cl, %al
+    outb %al, $0xa1
+    IO_WAIT
+
+    // Tell the master PIC that there is a slave at IRQ2
+    movb $4, %al
+    outb %al, $0x21
+    IO_WAIT
+    // Tell the slave it's cascade identity
+    movb $2, %al
+    outb %al, $0xa1
+    IO_WAIT
+
+    // Tell the PICs to use 8086 mode
+    movb $0x01, %al
+    outb %al, $0x21
+    IO_WAIT
+    movb $0x01, %al
+    outb %al, $0xa1
+    IO_WAIT
+
+    // We'll disable the PIC after remapping and restore it later
+    movb $0xff, %al
+    outb %al, $0x21
+    outb %al, $0xa1
+
+    ret
