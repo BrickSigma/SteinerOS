@@ -8,7 +8,7 @@ add_library(bios_interface STATIC)
 
 target_sources(bios_interface
     PRIVATE
-        bios_interface.s
+        bios_interface.S
         registers.c
     PUBLIC
         FILE_SET HEADERS

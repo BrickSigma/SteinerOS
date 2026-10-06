@@ -9,7 +9,7 @@ add_library(interrupts STATIC)
 target_sources(interrupts
     PRIVATE
         interrupts.c
-        isr.s
+        isr.S
         pic.c
     PUBLIC
         FILE_SET HEADERS

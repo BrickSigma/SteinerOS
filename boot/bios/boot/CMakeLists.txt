@@ -11,7 +11,7 @@ set_target_properties(CD_Bootloader PROPERTIES SUFFIX ".elf")
 
 target_sources(CD_Bootloader
     PRIVATE
-        boot.s
+        boot.S
 )
 
 # Compiler options
